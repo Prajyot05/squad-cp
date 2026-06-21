@@ -1,0 +1,57 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import Lobby from './Lobby'
+import LiveContest from './LiveContest'
+import Results from './Results'
+import Standings from './Standings'
+
+export default function ContestWrapper({ initialContest, currentUserId }: { initialContest: any, currentUserId: string }) {
+  const [contest, setContest] = useState(initialContest)
+  const [standings, setStandings] = useState(initialContest.participants)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`contest-${contest.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contest_participants', filter: `contest_id=eq.${contest.id}` },
+        async () => {
+          const res = await fetch(`/api/contests/${contest.id}/standings`)
+          if (res.ok) {
+            const data = await res.json()
+            setStandings(data.participants)
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contests', filter: `id=eq.${contest.id}` },
+        async () => {
+          const res = await fetch(`/api/contests/${contest.id}`)
+          if (res.ok) {
+            const data = await res.json()
+            setContest((prev: any) => ({ ...prev, ...data.contest }))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [contest.id, supabase])
+
+  return (
+    <div className="max-w-6xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-2 space-y-6">
+        {contest.status === 'lobby' && <Lobby contest={contest} currentUserId={currentUserId} />}
+        {contest.status === 'active' && <LiveContest contest={contest} currentUserId={currentUserId} />}
+        {contest.status === 'finished' && <Results contest={contest} standings={standings} currentUserId={currentUserId} />}
+      </div>
+      <div className="md:col-span-1 border-l pl-6 border-border">
+        <Standings participants={standings} />
+      </div>
+    </div>
+  )
+}
