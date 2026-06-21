@@ -1,12 +1,14 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import ContestWrapper from '@/components/contest/ContestWrapper'
 
-export default async function ContestPage({ params }: { params: { id: string } }) {
+export default async function ContestPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+
+  if (!user) redirect('/auth/login')
 
   const contestId = params.id
 

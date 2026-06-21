@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 
-export default async function JoinContestPage({ params }: { params: { code: string } }) {
+export default async function JoinContestPage(props: { params: Promise<{ code: string }> }) {
+  const params = await props.params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
