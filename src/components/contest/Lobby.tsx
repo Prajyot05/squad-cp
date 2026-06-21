@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Copy, Play, Users, Clock, Hash, ShieldAlert } from 'lucide-react'
 
-export default function Lobby({ contest, currentUserId }: { contest: any, currentUserId: string }) {
+export default function Lobby({ contest, currentUserId, onStartSuccess }: { contest: any, currentUserId: string, onStartSuccess?: () => void }) {
   const [loading, setLoading] = useState(false)
   
   const isCreator = contest.creator_id === currentUserId
@@ -24,7 +24,10 @@ export default function Lobby({ contest, currentUserId }: { contest: any, curren
       }),
       {
         loading: 'Starting contest...',
-        success: 'Contest started! Good luck!',
+        success: () => {
+          if (onStartSuccess) onStartSuccess()
+          return 'Contest started! Good luck!'
+        },
         error: (err) => {
           setLoading(false)
           return err.message

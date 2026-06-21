@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { RefreshCw, ExternalLink, TriangleAlert, CheckCircle2, XCircle } from 'lucide-react'
 
-export default function LiveContest({ contest, currentUserId }: { contest: any, currentUserId: string }) {
+export default function LiveContest({ contest, currentUserId, onSyncSuccess }: { contest: any, currentUserId: string, onSyncSuccess?: () => void }) {
   const [timeLeft, setTimeLeft] = useState(0)
   const [syncing, setSyncing] = useState(false)
 
@@ -51,6 +51,7 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
         loading: 'Syncing with Codeforces...',
         success: (data) => {
           setSyncing(false)
+          if (onSyncSuccess) onSyncSuccess()
           return `Synced! You have solved ${data.problemsSolved} problems (${data.totalScore} pts).`
         },
         error: (err) => {
@@ -121,13 +122,27 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
         {contest.problems.map((cp: any, idx: number) => {
           const letter = String.fromCharCode(65 + idx)
           const cfUrl = `https://codeforces.com/problemset/problem/${cp.problem.cf_contest_id}/${cp.problem.cf_index}`
+          
+          const mySub = contest.submissions?.find((s: any) => s.user_id === currentUserId && s.problem_slot === cp.slot)
+          const isSolved = mySub?.verdict === 'AC'
+          const isAttempted = mySub && mySub.verdict !== 'AC'
+
           return (
-            <Card key={cp.id} className="glass hover:border-primary/50 transition-colors flex flex-col justify-between overflow-hidden relative group">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent -z-10" />
+            <Card key={cp.id} className={cn(
+              "glass hover:border-primary/50 transition-colors flex flex-col justify-between overflow-hidden relative group",
+              isSolved && "border-green-500/50 bg-green-500/5",
+              isAttempted && "border-red-500/50 bg-red-500/5"
+            )}>
+              <div className={cn(
+                "absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl -z-10",
+                isSolved ? "from-green-500/20 to-transparent" : 
+                isAttempted ? "from-red-500/20 to-transparent" : 
+                "from-primary/10 to-transparent"
+              )} />
               <CardContent className="p-5">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="font-bold text-lg leading-tight w-[80%] line-clamp-2">
-                    <span className="text-primary mr-2">{letter}.</span> 
+                    <span className={cn("mr-2", isSolved ? "text-green-500" : isAttempted ? "text-red-500" : "text-primary")}>{letter}.</span> 
                     {cp.problem.name}
                   </h3>
                   <Badge variant="outline" className={cn("font-mono font-bold ml-2 shrink-0", getRatingColor(cp.problem.rating))}>
@@ -135,12 +150,21 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
                   </Badge>
                 </div>
                 <div className="flex justify-between items-end mt-6">
-                  <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-mono text-[10px]">{letter}</div>
-                    {cp.max_points} pts
+                  <div className="text-sm font-semibold flex items-center gap-1.5">
+                    {isSolved ? (
+                      <span className="text-green-500 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> {cp.max_points} pts</span>
+                    ) : isAttempted ? (
+                      <span className="text-red-500 flex items-center gap-1"><XCircle className="w-4 h-4" /> {mySub.score || 0} pts</span>
+                    ) : (
+                      <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-mono text-[10px]">{letter}</div> {cp.max_points} pts</span>
+                    )}
                   </div>
-                  <a href={cfUrl} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), "gap-1.5 transition-colors group-hover:bg-primary group-hover:text-primary-foreground")}>
-                    Solve <ExternalLink className="w-3.5 h-3.5" />
+                  <a href={cfUrl} target="_blank" rel="noopener noreferrer" className={cn(
+                    buttonVariants({ variant: isSolved ? 'outline' : 'secondary', size: 'sm' }), 
+                    "gap-1.5 transition-colors",
+                    isSolved ? "text-green-500 border-green-500/30 hover:bg-green-500/10 hover:text-green-500" : "group-hover:bg-primary group-hover:text-primary-foreground"
+                  )}>
+                    {isSolved ? 'Solved' : isAttempted ? 'Retry' : 'Solve'} <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </CardContent>

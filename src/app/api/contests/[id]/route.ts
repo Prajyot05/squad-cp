@@ -11,7 +11,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
         problems: { include: { problem: true }, orderBy: { slot: 'asc' } },
         participants: {
           include: { user: { select: { username: true, cf_handle: true, skill_rating: true, current_level: true } } },
-        }
+        },
+        submissions: true
       }
     })
     

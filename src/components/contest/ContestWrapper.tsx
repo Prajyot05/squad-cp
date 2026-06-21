@@ -12,30 +12,31 @@ export default function ContestWrapper({ initialContest, currentUserId }: { init
   const [standings, setStandings] = useState(initialContest.participants)
   const supabase = createClient()
 
+  const refreshData = async () => {
+    const resStandings = await fetch(`/api/contests/${contest.id}/standings`, { cache: 'no-store' })
+    if (resStandings.ok) {
+      const data = await resStandings.json()
+      setStandings(data.participants)
+    }
+    const resContest = await fetch(`/api/contests/${contest.id}`, { cache: 'no-store' })
+    if (resContest.ok) {
+      const data = await resContest.json()
+      setContest((prev: any) => ({ ...prev, ...data.contest }))
+    }
+  }
+
   useEffect(() => {
     const channel = supabase
       .channel(`contest-${contest.id}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'contest_participants', filter: `contest_id=eq.${contest.id}` },
-        async () => {
-          const res = await fetch(`/api/contests/${contest.id}/standings`)
-          if (res.ok) {
-            const data = await res.json()
-            setStandings(data.participants)
-          }
-        }
+        refreshData
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'contests', filter: `id=eq.${contest.id}` },
-        async () => {
-          const res = await fetch(`/api/contests/${contest.id}`)
-          if (res.ok) {
-            const data = await res.json()
-            setContest((prev: any) => ({ ...prev, ...data.contest }))
-          }
-        }
+        refreshData
       )
       .subscribe()
 
@@ -45,8 +46,8 @@ export default function ContestWrapper({ initialContest, currentUserId }: { init
   return (
     <div className="max-w-6xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2 space-y-6">
-        {contest.status === 'lobby' && <Lobby contest={contest} currentUserId={currentUserId} />}
-        {contest.status === 'active' && <LiveContest contest={contest} currentUserId={currentUserId} />}
+        {contest.status === 'lobby' && <Lobby contest={contest} currentUserId={currentUserId} onStartSuccess={refreshData} />}
+        {contest.status === 'active' && <LiveContest contest={contest} currentUserId={currentUserId} onSyncSuccess={refreshData} />}
         {contest.status === 'finished' && <Results contest={contest} standings={standings} currentUserId={currentUserId} />}
       </div>
       <div className="md:col-span-1 border-l pl-6 border-border">
