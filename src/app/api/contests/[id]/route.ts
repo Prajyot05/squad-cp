@@ -19,6 +19,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
     
     return NextResponse.json({ contest })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('Fetch contest error:', err)
+    return NextResponse.json({ error: 'An unexpected error occurred while fetching the contest.' }, { status: 500 })
   }
 }

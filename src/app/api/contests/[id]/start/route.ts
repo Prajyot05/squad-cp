@@ -26,6 +26,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     return NextResponse.json({ success: true })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('Contest start error:', err)
+    return NextResponse.json({ error: 'An unexpected error occurred while starting the contest.' }, { status: 500 })
   }
 }

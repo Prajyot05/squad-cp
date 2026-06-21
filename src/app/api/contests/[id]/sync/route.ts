@@ -110,6 +110,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     return NextResponse.json({ success: true, totalScore, problemsSolved })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('Contest sync error:', err)
+    return NextResponse.json({ error: 'An unexpected error occurred while syncing data.' }, { status: 500 })
   }
 }

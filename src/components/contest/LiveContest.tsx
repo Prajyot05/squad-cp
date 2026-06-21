@@ -5,7 +5,10 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { RefreshCw, ExternalLink, TriangleAlert, CheckCircle2, XCircle } from 'lucide-react'
 
 export default function LiveContest({ contest, currentUserId }: { contest: any, currentUserId: string }) {
   const [timeLeft, setTimeLeft] = useState(0)
@@ -33,38 +36,82 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
   const mins = Math.floor(timeLeft / 60)
   const secs = timeLeft % 60
   const progress = 100 - (timeLeft / durationSecs) * 100
+  const isUrgent = timeLeft > 0 && timeLeft < 300 // Last 5 minutes
 
   const handleSync = async () => {
     setSyncing(true)
-    await fetch(`/api/contests/${contest.id}/sync`, { method: 'POST' })
-    setSyncing(false)
+    
+    toast.promise(
+      fetch(`/api/contests/${contest.id}/sync`, { method: 'POST' }).then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to sync')
+        return data
+      }),
+      {
+        loading: 'Syncing with Codeforces...',
+        success: (data) => {
+          setSyncing(false)
+          return `Synced! You have solved ${data.problemsSolved} problems (${data.totalScore} pts).`
+        },
+        error: (err) => {
+          setSyncing(false)
+          return err.message
+        }
+      }
+    )
   }
 
   const handleEnd = async () => {
-    if (confirm('Are you sure you want to end the contest for everyone?')) {
-      await fetch(`/api/contests/${contest.id}/end`, { method: 'POST' })
-    }
+    toast.promise(
+      fetch(`/api/contests/${contest.id}/end`, { method: 'POST' }).then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to end contest')
+        return data
+      }),
+      {
+        loading: 'Ending contest and calculating ratings...',
+        success: 'Contest ended successfully!',
+        error: (err) => err.message
+      }
+    )
+  }
+
+  const getRatingColor = (rating: number) => {
+    if (rating < 1000) return "text-gray-500 border-gray-500/30 bg-gray-500/10"
+    if (rating < 1200) return "text-green-500 border-green-500/30 bg-green-500/10"
+    if (rating < 1500) return "text-blue-500 border-blue-500/30 bg-blue-500/10"
+    return "text-purple-500 border-purple-500/30 bg-purple-500/10"
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-4">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Card className="glass border-border/50 shadow-md">
+        <CardHeader className="pb-4 border-b border-border/50">
           <div className="flex justify-between items-center">
-            <CardTitle>{contest.title}</CardTitle>
-            <div className="text-2xl font-mono tracking-tighter">
+            <CardTitle className="text-xl">{contest.title}</CardTitle>
+            <div className={cn(
+              "text-3xl font-mono font-bold tracking-tighter px-4 py-1 rounded-lg transition-colors",
+              isUrgent ? "text-destructive bg-destructive/10 animate-pulse" : "text-primary bg-primary/10"
+            )}>
               {mins.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}
             </div>
           </div>
-          <Progress value={progress} className="h-2" />
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between items-center bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              Solve problems on Codeforces, then sync your status to update the standings.
+        <div className="h-1.5 w-full bg-muted overflow-hidden">
+          <div 
+            className={cn("h-full transition-all duration-1000 ease-linear", isUrgent ? "bg-destructive" : "bg-primary")} 
+            style={{ width: `${progress}%` }} 
+          />
+        </div>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border/50">
+            <p className="text-sm text-muted-foreground flex items-start gap-2">
+              <TriangleAlert className="w-5 h-5 text-amber-500 shrink-0" />
+              Solve problems on Codeforces, then sync your status to update the standings. Submissions made before the contest started will be ignored.
             </p>
-            <Button onClick={handleSync} disabled={syncing}>
-              {syncing ? 'Syncing...' : '🔄 Sync Status'}
+            <Button onClick={handleSync} disabled={syncing} className="shrink-0 gap-2 shadow-sm">
+              <RefreshCw className={cn("w-4 h-4", syncing && "animate-spin")} />
+              {syncing ? 'Syncing...' : 'Sync Status'}
             </Button>
           </div>
         </CardContent>
@@ -75,20 +122,27 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
           const letter = String.fromCharCode(65 + idx)
           const cfUrl = `https://codeforces.com/problemset/problem/${cp.problem.cf_contest_id}/${cp.problem.cf_index}`
           return (
-            <Card key={cp.id}>
-              <CardContent className="p-4 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-lg">{letter} - {cp.problem.name}</h3>
-                    <div className="flex gap-2 mt-1">
-                      <Badge variant="secondary">Rating: {cp.problem.rating}</Badge>
-                      <Badge variant="outline">{cp.max_points} pts</Badge>
-                    </div>
-                  </div>
+            <Card key={cp.id} className="glass hover:border-primary/50 transition-colors flex flex-col justify-between overflow-hidden relative group">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent -z-10" />
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="font-bold text-lg leading-tight w-[80%] line-clamp-2">
+                    <span className="text-primary mr-2">{letter}.</span> 
+                    {cp.problem.name}
+                  </h3>
+                  <Badge variant="outline" className={cn("font-mono font-bold ml-2 shrink-0", getRatingColor(cp.problem.rating))}>
+                    {cp.problem.rating}
+                  </Badge>
                 </div>
-                <a href={cfUrl} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: 'outline' }), "w-full flex")}>
-                  Open on Codeforces ↗
-                </a>
+                <div className="flex justify-between items-end mt-6">
+                  <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-mono text-[10px]">{letter}</div>
+                    {cp.max_points} pts
+                  </div>
+                  <a href={cfUrl} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), "gap-1.5 transition-colors group-hover:bg-primary group-hover:text-primary-foreground")}>
+                    Solve <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
               </CardContent>
             </Card>
           )
@@ -96,10 +150,19 @@ export default function LiveContest({ contest, currentUserId }: { contest: any, 
       </div>
 
       {contest.creator_id === currentUserId && (
-        <div className="pt-8">
-          <Button variant="destructive" onClick={handleEnd}>
-            Force End Contest
-          </Button>
+        <div className="pt-8 flex justify-end">
+          <ConfirmDialog
+            title="End Contest Early?"
+            description="Are you sure you want to end the contest for everyone? Ratings will be calculated immediately based on current standings. This action cannot be undone."
+            confirmText="End Contest"
+            variant="destructive"
+            onConfirm={handleEnd}
+            trigger={
+              <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                Force End Contest
+              </Button>
+            }
+          />
         </div>
       )}
     </div>

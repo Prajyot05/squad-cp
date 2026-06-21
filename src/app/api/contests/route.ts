@@ -48,6 +48,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ contestId: contest.id, inviteCode: contest.invite_code })
   } catch (err: any) {
     console.error('Contest creation error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'An unexpected error occurred while creating the contest.' }, { status: 500 })
   }
 }

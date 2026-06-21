@@ -60,6 +60,6 @@ export async function POST() {
     return NextResponse.json({ upserted, filtered: filtered.length })
   } catch (err: any) {
     console.error("Cache refresh error:", err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'An unexpected error occurred while refreshing the cache.' }, { status: 500 })
   }
 }
