@@ -36,7 +36,7 @@ Unlike typical competitive programming platforms that require continuous polling
 
 ### Problem Cache & Admin Page
 The platform maintains a local cache of Codeforces problems to ensure instant, synchronous contest creation.
-- A hardcoded admin (`pmtbmt@gmail.com`) can access the `/admin` page.
+- A hardcoded admin (`Prajyot05` GitHub username) can access the `/admin` page.
 - The admin manually clicks **"Refresh Problem Cache"** to fetch new problems from the Codeforces API and batch-upsert them using Prisma.
 - This design bypasses the complexity and potential failure points of automated cron jobs or lazy-loaded caches.
 

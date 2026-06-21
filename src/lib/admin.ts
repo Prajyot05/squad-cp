@@ -1,5 +1,5 @@
-export const ADMIN_EMAIL = "pmtbmt@gmail.com";
+export const ADMIN_GITHUB_USERNAME = "Prajyot05";
 
-export function isAdmin(userEmail: string | undefined | null): boolean {
-  return userEmail === ADMIN_EMAIL;
+export function isAdmin(userName: string | undefined | null): boolean {
+  return userName?.toLowerCase() === ADMIN_GITHUB_USERNAME.toLowerCase();
 }

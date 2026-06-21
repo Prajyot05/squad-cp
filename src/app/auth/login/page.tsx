@@ -35,8 +35,8 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md border-border/50 shadow-xl overflow-hidden">
       <CardHeader className="text-center pb-8 pt-10">
-        <div className="mx-auto mb-6 bg-background p-2 rounded-2xl shadow-sm border border-border/50">
-          <Image src="/logo.png" alt="SquadCP Logo" width={80} height={80} className="rounded-xl" style={{ width: 'auto', height: 'auto' }} priority />
+        <div className="mx-auto mb-6 bg-background p-2 rounded-2xl shadow-sm border border-border/50 w-fit">
+          <Image src="/logo.png" alt="SquadCP Logo" width={236} height={192} className="h-16 w-auto rounded-xl" priority />
         </div>
         <CardTitle className="text-3xl font-extrabold tracking-tight">SquadCP</CardTitle>
         <CardDescription className="text-base mt-2">Level up your competitive programming with your squad.</CardDescription>

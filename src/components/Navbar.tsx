@@ -7,7 +7,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Menu, LogOut, User, Loader2 } from 'lucide-react'
+import { Menu, LogOut, User, Loader2, Shield } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet"
 import { useState } from 'react'
 
-export default function Navbar() {
+export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean }) {
   const pathname = usePathname()
   const supabase = createClient()
   const [open, setOpen] = useState(false)
@@ -31,11 +31,11 @@ export default function Navbar() {
 
   const NavLinks = ({ mobile = false }) => (
     <>
-      <Link 
-        href="/" 
+      <Link
+        href="/"
         onClick={() => setOpen(false)}
         className={cn(
-          "text-sm transition-colors relative", 
+          "text-sm transition-colors relative",
           pathname === '/' ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground",
           mobile && "block py-2 text-lg"
         )}
@@ -43,11 +43,11 @@ export default function Navbar() {
         Dashboard
         {pathname === '/' && !mobile && <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-primary rounded-t-full" />}
       </Link>
-      <Link 
-        href="/leaderboard" 
+      <Link
+        href="/leaderboard"
         onClick={() => setOpen(false)}
         className={cn(
-          "text-sm transition-colors relative", 
+          "text-sm transition-colors relative",
           pathname === '/leaderboard' ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground",
           mobile && "block py-2 text-lg"
         )}
@@ -63,22 +63,29 @@ export default function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="SquadCP Logo" width={32} height={32} className="rounded-md transition-transform group-hover:scale-105" style={{ width: 'auto', height: 'auto' }} priority />
+            <Image src="/logo.png" alt="SquadCP Logo" width={400} height={400} className="h-8 w-auto rounded-md transition-transform group-hover:scale-105" priority />
             <span className="font-bold text-2xl tracking-tight text-primary">SquadCP</span>
           </Link>
           <div className="hidden md:flex gap-6 relative h-full items-center">
             <NavLinks />
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
-          
+
+          {isAdminUser && (
+            <Link href="/admin" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), "hidden sm:flex")} title="Admin Dashboard">
+              <Shield className="h-5 w-5 text-amber-500" />
+              <span className="sr-only">Admin</span>
+            </Link>
+          )}
+
           <Link href="/profile" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), "hidden sm:flex")}>
             <User className="h-5 w-5" />
             <span className="sr-only">Profile</span>
           </Link>
-          
+
           <Button variant="ghost" size="icon" onClick={handleLogout} className="hidden sm:flex" title="Log out" disabled={loggingOut}>
             {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
           </Button>
@@ -89,21 +96,30 @@ export default function Navbar() {
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <SheetHeader>
                 <SheetTitle className="text-left flex items-center gap-2">
-                  <Image src="/logo.png" alt="SquadCP Logo" width={24} height={24} className="rounded-md" style={{ width: 'auto', height: 'auto' }} />
+                  <Image src="/logo.png" alt="SquadCP Logo" width={236} height={192} className="h-6 w-auto rounded-md" />
                   SquadCP
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-8">
                 <NavLinks mobile />
                 <div className="h-px bg-border my-4" />
-                <Link 
-                  href="/profile" 
+                {isAdminUser && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 text-lg text-amber-500 hover:text-amber-400 transition-colors"
+                  >
+                    <Shield className="h-5 w-5" /> Admin Dashboard
+                  </Link>
+                )}
+                <Link
+                  href="/profile"
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-2 text-lg text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <User className="h-5 w-5" /> Profile
                 </Link>
-                <button 
+                <button
                   onClick={handleLogout}
                   disabled={loggingOut}
                   className="flex items-center gap-2 text-lg text-muted-foreground hover:text-foreground transition-colors text-left disabled:opacity-50"

@@ -69,8 +69,8 @@ export default function SetupForm({ userId }: { userId: string }) {
     <div className="flex min-h-screen w-full items-center justify-center p-4 bg-background relative">
       <Card className="w-full max-w-md border-border/50 shadow-xl z-10">
         <CardHeader className="text-center pt-8">
-          <div className="mx-auto mb-4 bg-background p-2 rounded-2xl shadow-sm border border-border/50">
-            <Image src="/logo.png" alt="SquadCP Logo" width={64} height={64} className="rounded-xl" style={{ width: 'auto', height: 'auto' }} priority />
+          <div className="mx-auto mb-4 bg-background p-2 rounded-2xl shadow-sm border border-border/50 w-fit">
+            <Image src="/logo.png" alt="SquadCP Logo" width={236} height={192} className="h-16 w-auto rounded-xl" priority />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">Almost there!</CardTitle>
           <CardDescription>We need a bit more info before you can start.</CardDescription>
