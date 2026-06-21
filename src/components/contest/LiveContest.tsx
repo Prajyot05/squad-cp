@@ -33,6 +33,22 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
     return () => clearInterval(intv)
   }, [contest.started_at, durationSecs])
 
+  // Background auto-sync every 45 seconds to reduce server load spikes and improve UX
+  useEffect(() => {
+    if (!contest.id) return
+    const intv = setInterval(() => {
+      fetch(`/api/contests/${contest.id}/sync`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && onSyncSuccess) {
+            onSyncSuccess()
+          }
+        })
+        .catch(console.error)
+    }, 45000)
+    return () => clearInterval(intv)
+  }, [contest.id, onSyncSuccess])
+
   const mins = Math.floor(timeLeft / 60)
   const secs = timeLeft % 60
   const progress = 100 - (timeLeft / durationSecs) * 100
@@ -71,7 +87,10 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
       }),
       {
         loading: 'Ending contest and calculating ratings...',
-        success: 'Contest ended successfully!',
+        success: () => {
+          if (onSyncSuccess) onSyncSuccess()
+          return 'Contest ended successfully!'
+        },
         error: (err) => err.message
       }
     )
@@ -182,7 +201,7 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
             variant="destructive"
             onConfirm={handleEnd}
             trigger={
-              <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive hover:text-destructive-foreground transition-colors">
+              <Button variant="outline" className="text-red-500 border-red-500/50 hover:bg-red-500 hover:text-white transition-colors">
                 Force End Contest
               </Button>
             }
