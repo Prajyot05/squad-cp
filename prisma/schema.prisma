@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id              String   @id @db.Uuid
+  username        String   @unique
+  cf_handle       String?  @unique
+  cf_verified     Boolean  @default(false)
+  avatar_url      String?
+  
+  skill_rating    Int      @default(800)
+  skill_contests  Int      @default(0)
+  
+  current_level   Int      @default(1)
+  highest_level   Int      @default(1)
+  
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  groups_owned         Group[]
+  group_memberships    GroupMember[]
+  contests_created     Contest[]
+  contest_participants ContestParticipant[]
+  submissions          Submission[]
+  rating_history       RatingHistory[]
+
+  @@map("profiles")
+}
+
+model ProblemCache {
+  id            Int      @id @default(autoincrement())
+  cf_contest_id Int
+  cf_index      String
+  name          String
+  rating        Int
+  tags          String[]
+  solved_count  Int      @default(0)
+  fetched_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  contest_problems ContestProblem[]
+
+  @@unique([cf_contest_id, cf_index])
+  @@index([rating])
+  @@map("problem_cache")
+}
+
+model Group {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  owner_id    String   @db.Uuid
+  invite_code String   @unique @default(dbgenerated("substring(gen_random_uuid()::text, 1, 8)"))
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  owner       Profile       @relation(fields: [owner_id], references: [id])
+  members     GroupMember[]
+  contests    Contest[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  group_id  String   @db.Uuid
+  user_id   String   @db.Uuid
+  role      String   @default("member") // "owner" | "member"
+  joined_at DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  group     Group    @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user      Profile  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([group_id, user_id])
+  @@map("group_members")
+}
+
+model Contest {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  level        Int
+  duration_min Int
+  tag_filter   String[]
+  status       String    @default("lobby") // "lobby" | "active" | "finished"
+  creator_id   String    @db.Uuid
+  group_id     String?   @db.Uuid
+  invite_code  String    @unique @default(dbgenerated("substring(gen_random_uuid()::text, 1, 8)"))
+  started_at   DateTime? @db.Timestamptz(6)
+  ended_at     DateTime? @db.Timestamptz(6)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  creator      Profile              @relation(fields: [creator_id], references: [id])
+  group        Group?               @relation(fields: [group_id], references: [id])
+  problems     ContestProblem[]
+  participants ContestParticipant[]
+  submissions  Submission[]
+  rating_history RatingHistory[]
+
+  @@index([status])
+  @@map("contests")
+}
+
+model ContestProblem {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contest_id String   @db.Uuid
+  problem_id Int
+  slot       Int      @db.SmallInt // 0=A, 1=B, 2=C, 3=D
+  max_points Int
+
+  // Relations
+  contest    Contest      @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+  problem    ProblemCache @relation(fields: [problem_id], references: [id])
+
+  @@unique([contest_id, slot])
+  @@map("contest_problems")
+}
+
+model ContestParticipant {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contest_id      String   @db.Uuid
+  user_id         String   @db.Uuid
+  
+  total_score     Int      @default(0)
+  problems_solved Int      @default(0) @db.SmallInt
+  last_solve_sec  Int?
+  final_rank      Int?
+  
+  skill_before    Int?
+  skill_after     Int?
+  level_before    Int?
+  level_after     Int?
+  
+  joined_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  contest         Contest  @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+  user            Profile  @relation(fields: [user_id], references: [id])
+
+  @@unique([contest_id, user_id])
+  @@map("contest_participants")
+}
+
+model Submission {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contest_id   String   @db.Uuid
+  user_id      String   @db.Uuid
+  problem_slot Int      @db.SmallInt
+  
+  verdict      String   // AC, WA, TLE, MLE, RE, CE
+  score        Int?
+  elapsed_sec  Int
+  
+  submitted_at DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  contest      Contest  @relation(fields: [contest_id], references: [id])
+  user         Profile  @relation(fields: [user_id], references: [id])
+
+  @@index([contest_id, user_id, problem_slot])
+  @@map("submissions")
+}
+
+model RatingHistory {
+  id              BigInt   @id @default(autoincrement())
+  user_id         String   @db.Uuid
+  contest_id      String   @db.Uuid
+  
+  skill_before    Int
+  skill_after     Int
+  level_before    Int
+  level_after     Int
+  
+  rank            Int
+  problems_solved Int      @db.SmallInt
+  total_score     Int
+  
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user            Profile  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  contest         Contest  @relation(fields: [contest_id], references: [id])
+
+  @@index([user_id, created_at(sort: Desc)])
+  @@map("rating_history")
+}
