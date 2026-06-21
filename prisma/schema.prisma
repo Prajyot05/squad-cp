@@ -11,7 +11,7 @@ datasource db {
 model Profile {
   id              String   @id @db.Uuid
   username        String   @unique
-  cf_handle       String?  @unique
+  cf_handle       String   @unique
   cf_verified     Boolean  @default(false)
   avatar_url      String?
   

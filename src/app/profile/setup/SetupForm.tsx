@@ -49,8 +49,8 @@ export default function SetupForm({ userId }: { userId: string }) {
               <Input id="username" value={username} onChange={e => setUsername(e.target.value)} required placeholder="CoolCoder99" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cfHandle">Codeforces Handle (Optional)</Label>
-              <Input id="cfHandle" value={cfHandle} onChange={e => setCfHandle(e.target.value)} placeholder="tourist" />
+              <Label htmlFor="cfHandle">Codeforces Handle</Label>
+              <Input id="cfHandle" value={cfHandle} onChange={e => setCfHandle(e.target.value)} required placeholder="tourist" />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>Save Profile</Button>

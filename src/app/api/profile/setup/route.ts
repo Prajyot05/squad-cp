@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     const { username, cfHandle } = await req.json()
     
     if (!username) return NextResponse.json({ error: 'Username is required' }, { status: 400 })
+    if (!cfHandle) return NextResponse.json({ error: 'Codeforces handle is required' }, { status: 400 })
 
     const existingUser = await db.profile.findUnique({ where: { username } })
     if (existingUser) return NextResponse.json({ error: 'Username is already taken' }, { status: 400 })
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       data: {
         id: user.id,
         username,
-        cf_handle: cfHandle || null,
+        cf_handle: cfHandle,
         avatar_url: user.user_metadata.avatar_url || null
       }
     })
