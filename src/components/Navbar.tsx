@@ -7,7 +7,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Menu, LogOut, User } from 'lucide-react'
+import { Menu, LogOut, User, Loader2 } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -21,8 +21,10 @@ export default function Navbar() {
   const pathname = usePathname()
   const supabase = createClient()
   const [open, setOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   const handleLogout = async () => {
+    setLoggingOut(true)
     await supabase.auth.signOut()
     window.location.href = '/auth/login'
   }
@@ -61,7 +63,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="SquadCP Logo" width={32} height={32} className="rounded-md transition-transform group-hover:scale-105" />
+            <Image src="/logo.png" alt="SquadCP Logo" width={32} height={32} className="rounded-md transition-transform group-hover:scale-105" style={{ width: 'auto', height: 'auto' }} priority />
             <span className="font-bold text-2xl tracking-tight text-primary">SquadCP</span>
           </Link>
           <div className="hidden md:flex gap-6 relative h-full items-center">
@@ -77,20 +79,17 @@ export default function Navbar() {
             <span className="sr-only">Profile</span>
           </Link>
           
-          <Button variant="ghost" size="icon" onClick={handleLogout} className="hidden sm:flex" title="Log out">
-            <LogOut className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="hidden sm:flex" title="Log out" disabled={loggingOut}>
+            {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
           </Button>
 
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
+            {/* @ts-ignore */}
+            <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden"><Menu className="h-5 w-5" /></Button>} />
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <SheetHeader>
                 <SheetTitle className="text-left flex items-center gap-2">
-                  <Image src="/logo.png" alt="SquadCP Logo" width={24} height={24} className="rounded-md" />
+                  <Image src="/logo.png" alt="SquadCP Logo" width={24} height={24} className="rounded-md" style={{ width: 'auto', height: 'auto' }} />
                   SquadCP
                 </SheetTitle>
               </SheetHeader>
@@ -106,9 +105,10 @@ export default function Navbar() {
                 </Link>
                 <button 
                   onClick={handleLogout}
-                  className="flex items-center gap-2 text-lg text-muted-foreground hover:text-foreground transition-colors text-left"
+                  disabled={loggingOut}
+                  className="flex items-center gap-2 text-lg text-muted-foreground hover:text-foreground transition-colors text-left disabled:opacity-50"
                 >
-                  <LogOut className="h-5 w-5" /> Log out
+                  {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />} Log out
                 </button>
               </div>
             </SheetContent>

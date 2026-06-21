@@ -69,8 +69,7 @@ export default function CreateContestPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Card className="glass border-border/50 shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+      <Card className="border-border/50 shadow-lg overflow-hidden">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2"><Plus className="w-6 h-6 text-primary" /> Create Contest</CardTitle>
           <CardDescription>Configure your custom practice session and invite your squad.</CardDescription>

@@ -23,8 +23,8 @@ export default function SetupForm({ userId }: { userId: string }) {
       return
     }
     
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      toast.error('Username can only contain letters, numbers, and underscores')
+    if (!/^[a-zA-Z0-9_ ]+$/.test(username)) {
+      toast.error('Username can only contain letters, numbers, spaces, and underscores')
       return
     }
 
@@ -66,14 +66,11 @@ export default function SetupForm({ userId }: { userId: string }) {
   const isWorking = loading || verifying
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-4 bg-background relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full animate-pulse pointer-events-none" />
-      
-      <Card className="w-full max-w-md glass border-border/30 shadow-2xl relative overflow-hidden z-10">
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+    <div className="flex min-h-screen w-full items-center justify-center p-4 bg-background relative">
+      <Card className="w-full max-w-md border-border/50 shadow-xl z-10">
         <CardHeader className="text-center pt-8">
           <div className="mx-auto mb-4 bg-background p-2 rounded-2xl shadow-sm border border-border/50">
-            <Image src="/logo.png" alt="SquadCP Logo" width={64} height={64} className="rounded-xl" />
+            <Image src="/logo.png" alt="SquadCP Logo" width={64} height={64} className="rounded-xl" style={{ width: 'auto', height: 'auto' }} priority />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">Almost there!</CardTitle>
           <CardDescription>We need a bit more info before you can start.</CardDescription>
@@ -90,7 +87,7 @@ export default function SetupForm({ userId }: { userId: string }) {
                 placeholder="CoolCoder99" 
                 className="h-11"
               />
-              <p className="text-xs text-muted-foreground ml-1">Letters, numbers, and underscores only. Min 3 characters.</p>
+              <p className="text-xs text-muted-foreground ml-1">Letters, numbers, spaces, and underscores only. Min 3 characters.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="cfHandle">Codeforces Handle</Label>

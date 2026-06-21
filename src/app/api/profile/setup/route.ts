@@ -29,6 +29,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Profile setup error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'This Codeforces handle is already linked to another account' }, { status: 400 })
+    }
+    return NextResponse.json({ error: error.message || 'An unexpected error occurred while setting up your profile.' }, { status: 500 })
   }
 }
