@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SquadCP
 
-## Getting Started
+SquadCP is a social, multiplayer competitive programming platform heavily inspired by the "ThemeCP" training methodology. It is designed specifically as a collaborative ICPC training tool for small teams (3-10 users), focused on a zero-cost, high-velocity development model.
 
-First, run the development server:
+## Core Philosophy
+- **Team-Focused:** Built for a specific ICPC team. No public leaderboards, no strangers.
+- **Zero Cost:** Leveraging Vercel (Next.js serverless) and Supabase (PostgreSQL, Auth, Realtime) free tiers.
+- **Minimalist Complexity:** Features that don't directly benefit a 3-person training environment are omitted.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Key Features
+- **Level-Based Contests:** Contests scale from Level 1 (four 800-rated problems) up to Level 109 (four 3500-rated problems).
+- **Codeforces Problem Cache:** Dynamically syncs and caches problems directly from Codeforces (filtering out extremely old rounds, retaining >= 1600).
+- **Real-time Leaderboard:** Standings update automatically via Supabase Realtime when any participant clicks the "Sync Status" button.
+- **Two Progression Systems:**
+  - *Skill Rating:* A Codeforces-equivalent estimate using exponential moving average with deflation.
+  - *Level Progression:* A purely milestone-driven ThemeCP ladder.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Tech Stack
+| Layer | Choice | Why |
+|---|---|---|
+| **Framework** | Next.js 15 (App Router) | React Server Components, unified backend/frontend |
+| **Hosting** | Vercel | Serverless architecture, generous free tier |
+| **Database** | Supabase (PostgreSQL) | Managed database, seamless Auth, and free Realtime subscriptions |
+| **ORM** | Prisma | Type-safe queries, excellent schema management |
+| **Styling** | Tailwind CSS + shadcn/ui | Rapid, beautiful UI generation |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### The "Sync Status" Flow
+Unlike typical competitive programming platforms that require continuous polling or custom WebSocket servers:
+1. Users join a contest and see the problem list.
+2. Users solve problems natively on Codeforces and receive verdicts.
+3. Users click the **[🔄 Sync Status]** button in SquadCP.
+4. SquadCP backend updates their score in the `contest_participants` table.
+5. Supabase Realtime detects the row change and pushes updates to all connected clients instantly.
 
-## Learn More
+### Problem Cache & Admin Page
+The platform maintains a local cache of Codeforces problems to ensure instant, synchronous contest creation.
+- A hardcoded admin (`pmtbmt@gmail.com`) can access the `/admin` page.
+- The admin manually clicks **"Refresh Problem Cache"** to fetch new problems from the Codeforces API and batch-upsert them using Prisma.
+- This design bypasses the complexity and potential failure points of automated cron jobs or lazy-loaded caches.
 
-To learn more about Next.js, take a look at the following resources:
+### Database Schema (9 Tables)
+- `profiles`: Extends Supabase auth, holds ratings and levels.
+- `problem_cache`: Codeforces problem repository.
+- `groups` & `group_members`: Team management.
+- `contests` & `contest_problems`: Defines a contest and its 4 selected problems.
+- `contest_participants` & `submissions`: Tracks live contest standing and verdicts.
+- `rating_history`: Audit log for every rating and level change per contest.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository and install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+2. Configure environment variables in `.env.local`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   DATABASE_URL=your_prisma_connection_string
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Push the Prisma schema to your database:
+   ```bash
+   npx prisma db push
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Next Steps for Future Iterations
+- Squad Rating (multiplayer Elo)
+- Friends System
+- Achievement Badges
+- Activity Feeds
+- Scheduled Contests
