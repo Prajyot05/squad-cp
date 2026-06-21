@@ -67,46 +67,46 @@ export default function SetupForm({ userId }: { userId: string }) {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4 bg-background relative">
-      <Card className="w-full max-w-md border-border/50 shadow-xl z-10">
+      <Card className="w-full max-w-md border border-border rounded-md shadow-lg z-10">
         <CardHeader className="text-center pt-8">
-          <div className="mx-auto mb-4 bg-background p-2 rounded-2xl shadow-sm border border-border/50 w-fit">
-            <Image src="/logo.png" alt="SquadCP Logo" width={236} height={192} className="h-16 w-auto rounded-xl" priority />
+          <div className="mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 p-2 rounded-md border border-border w-fit">
+            <Image src="/logo.png" alt="SquadCP Logo" width={236} height={192} className="h-14 w-auto rounded-sm" priority />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Almost there!</CardTitle>
-          <CardDescription>We need a bit more info before you can start.</CardDescription>
+          <CardTitle className="text-xl font-bold tracking-tight text-foreground">Almost there!</CardTitle>
+          <CardDescription className="text-xs text-neutral-500">We need a bit more info before you can start.</CardDescription>
         </CardHeader>
         <CardContent className="px-8 pb-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="username">SquadCP Username</Label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-xs font-medium text-neutral-500 uppercase tracking-wider">SquadCP Username</Label>
               <Input 
                 id="username" 
                 value={username} 
                 onChange={e => setUsername(e.target.value)} 
                 required 
                 placeholder="CoolCoder99" 
-                className="h-11"
+                className="h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm"
               />
-              <p className="text-xs text-muted-foreground ml-1">Letters, numbers, spaces, and underscores only. Min 3 characters.</p>
+              <p className="text-[10px] text-neutral-400 ml-1">Letters, numbers, spaces, and underscores only. Min 3 characters.</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cfHandle">Codeforces Handle</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="cfHandle" className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Codeforces Handle</Label>
               <Input 
                 id="cfHandle" 
                 value={cfHandle} 
                 onChange={e => setCfHandle(e.target.value)} 
                 required 
                 placeholder="tourist" 
-                className="h-11"
+                className="h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm font-mono"
               />
-              <p className="text-xs text-muted-foreground ml-1">Your exact username on codeforces.com</p>
+              <p className="text-[10px] text-neutral-400 ml-1">Your exact username on codeforces.com</p>
             </div>
             
-            <Button type="submit" className="w-full h-12 text-md font-medium" disabled={isWorking}>
+            <Button type="submit" className="w-full h-11 font-medium bg-foreground text-background hover:bg-foreground/90" disabled={isWorking}>
               {verifying ? (
-                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Verifying CF handle...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying CF handle...</>
               ) : loading ? (
-                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Saving profile...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving profile...</>
               ) : (
                 'Save Profile & Continue'
               )}

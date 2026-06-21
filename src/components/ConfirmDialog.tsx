@@ -36,16 +36,16 @@ export function ConfirmDialog({
     <AlertDialog>
       {/* @ts-ignore */}
       <AlertDialogTrigger render={trigger} />
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-card border border-border rounded-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle className="text-foreground font-semibold">{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-neutral-500 text-sm">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel className="text-xs">{cancelText}</AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
-            className={variant === "destructive" ? "bg-transparent border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-colors" : ""}
+            className={variant === "destructive" ? "bg-transparent border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-colors text-xs" : "bg-foreground text-background hover:bg-foreground/90 text-xs"}
           >
             {confirmText}
           </AlertDialogAction>

@@ -44,13 +44,13 @@ export default function ContestWrapper({ initialContest, currentUserId }: { init
   }, [contest.id, supabase])
 
   return (
-    <div className="max-w-6xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-6">
+    <div className="max-w-6xl mx-auto mt-2 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-6">
         {contest.status === 'lobby' && <Lobby contest={contest} currentUserId={currentUserId} onStartSuccess={refreshData} />}
         {contest.status === 'active' && <LiveContest contest={contest} currentUserId={currentUserId} onSyncSuccess={refreshData} />}
         {contest.status === 'finished' && <Results contest={contest} standings={standings} currentUserId={currentUserId} />}
       </div>
-      <div className="md:col-span-1 border-l pl-6 border-border">
+      <div className="lg:col-span-1 lg:border-l lg:border-border lg:pl-6">
         <Standings participants={standings} />
       </div>
     </div>

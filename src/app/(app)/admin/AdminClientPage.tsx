@@ -45,36 +45,36 @@ export default function AdminClientPage({ initialCount, lastFetched }: { initial
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+    <div className="max-w-2xl mx-auto space-y-6 mt-2">
+      <h1 className="text-2xl font-bold tracking-tight text-foreground">Admin</h1>
       
-      <Card className="glass border-border/50">
+      <Card className="bg-card border border-border rounded-md">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Database className="w-5 h-5 text-primary" /> Problem Cache</CardTitle>
-          <CardDescription>Manage the local Codeforces problem cache.</CardDescription>
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold"><Database className="w-4 h-4 text-neutral-400" /> Problem Cache</CardTitle>
+          <CardDescription className="text-xs text-neutral-500">Manage the local Codeforces problem cache.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-xl border border-border/50">
+        <CardContent className="space-y-5">
+          <div className="grid grid-cols-2 gap-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">Problems Available</p>
-              <p className="text-3xl font-bold font-mono text-primary">{count}</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Problems Available</p>
+              <p className="text-2xl font-bold font-mono text-foreground">{count}</p>
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-1">Last Synchronized</p>
-              <p className="text-lg font-medium">{formatRelativeTime(fetchedAt)}</p>
-              {fetchedAt && <p className="text-xs text-muted-foreground">{new Date(fetchedAt).toLocaleString()}</p>}
+              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Last Synchronized</p>
+              <p className="text-sm font-medium text-foreground">{formatRelativeTime(fetchedAt)}</p>
+              {fetchedAt && <p className="text-[10px] text-neutral-400 font-mono">{new Date(fetchedAt).toLocaleString()}</p>}
             </div>
           </div>
           
-          <div className="pt-2">
-            <Button onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto h-11 gap-2 shadow-sm">
+          <div className="pt-1">
+            <Button onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto h-9 gap-2 bg-foreground text-background hover:bg-foreground/90 text-xs">
               {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Synchronizing...</>
+                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Synchronizing...</>
               ) : (
-                <><RefreshCw className="w-4 h-4" /> Refresh Problem Cache</>
+                <><RefreshCw className="w-3.5 h-3.5" /> Refresh Problem Cache</>
               )}
             </Button>
-            <p className="text-xs text-muted-foreground mt-3">This operation fetches the latest problemset from Codeforces and updates the local database. It may take a few seconds.</p>
+            <p className="text-[10px] text-neutral-400 mt-2">Fetches the latest problemset from Codeforces and updates the local database.</p>
           </div>
         </CardContent>
       </Card>

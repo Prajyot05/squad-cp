@@ -115,28 +115,28 @@ export default function CreateContestPage() {
   ]
 
   return (
-    <div className="max-w-xl mx-auto mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Card className="border-border/50 shadow-lg overflow-hidden">
+    <div className="max-w-xl mx-auto mt-2">
+      <Card className="bg-card border border-border rounded-md overflow-hidden">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2"><Plus className="w-6 h-6 text-primary" /> Create Contest</CardTitle>
-          <CardDescription>Configure your custom practice session and invite your squad.</CardDescription>
+          <CardTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2"><Plus className="w-5 h-5 text-neutral-400" /> Create Contest</CardTitle>
+          <CardDescription className="text-xs text-neutral-500">Configure your practice session and invite your squad.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Contest Title</Label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="title" className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Contest Title</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 required
-                className="h-11"
+                className="h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm"
               />
             </div>
 
-            <div className="space-y-4 bg-muted/30 p-4 rounded-xl border border-border/50">
-              <div className="space-y-2">
-                <Label htmlFor="level" className="flex items-center gap-2"><Activity className="w-4 h-4 text-accent" /> Difficulty Level (1 - 109)</Label>
+            <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
+              <div className="space-y-1.5">
+                <Label htmlFor="level" className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Activity className="w-3.5 h-3.5" /> Difficulty Level (1–109)</Label>
                 <Input
                   id="level"
                   type="number"
@@ -145,28 +145,28 @@ export default function CreateContestPage() {
                   value={level}
                   onChange={e => setLevel(Number(e.target.value))}
                   required
-                  className="h-11"
+                  className="h-10 bg-background border-border rounded-sm focus:border-foreground focus:ring-0 text-sm font-mono"
                 />
               </div>
-              <div className="bg-card/50 p-3 rounded-lg border border-border/50">
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Estimated Problem Ratings:</p>
-                <div className="flex gap-2">
+              <div className="bg-card p-3 rounded-sm border border-border">
+                <p className="text-[10px] text-neutral-500 font-medium uppercase tracking-wider mb-2">Estimated Ratings</p>
+                <div className="flex gap-1.5">
                   {estimatedRatings.map((r, i) => (
-                    <Badge key={i} variant="outline" className="font-mono text-primary/80 border-primary/20 bg-primary/5">{r}</Badge>
+                    <Badge key={i} variant="outline" className="font-mono text-[10px] text-foreground bg-neutral-100 dark:bg-neutral-800 border-border">{r}</Badge>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2"><Timer className="w-4 h-4 text-primary" /> Duration</Label>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Timer className="w-3.5 h-3.5" /> Duration</Label>
               <div className="grid grid-cols-4 gap-2">
                 {[30, 60, 90, 120].map(mins => (
                   <Button
                     key={mins}
                     type="button"
                     variant={duration === mins ? "default" : "outline"}
-                    className={duration === mins ? "shadow-sm" : ""}
+                    className={duration === mins ? "bg-foreground text-background hover:bg-foreground/90 font-mono" : "text-foreground border-border hover:border-neutral-400 dark:hover:border-neutral-600 font-mono"}
                     onClick={() => setDuration(mins)}
                   >
                     {mins}m
@@ -182,56 +182,56 @@ export default function CreateContestPage() {
                   value={duration}
                   onChange={e => setDuration(Number(e.target.value))}
                   required
-                  className="w-24 h-11"
+                  className="w-24 h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm font-mono"
                 />
-                <span className="text-sm text-muted-foreground">Custom minutes</span>
+                <span className="text-xs text-neutral-400">Custom minutes</span>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Label className="flex items-center gap-2"><Hash className="w-4 h-4 text-amber-500" /> Tags (Optional)</Label>
+                <Label className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Hash className="w-3.5 h-3.5" /> Tags (Optional)</Label>
                 <TooltipProvider delay={100}>
                   <Tooltip>
                     <TooltipTrigger type="button" className="cursor-help flex items-center">
-                      <Info className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+                      <Info className="w-3.5 h-3.5 text-neutral-400 hover:text-foreground transition-colors" />
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs p-3 bg-popover text-popover-foreground shadow-xl border border-border/50">
-                      <div className="space-y-2 text-sm leading-relaxed">
-                        <p><strong className="text-foreground">How tags work:</strong></p>
-                        <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
-                          <li>Every problem in the contest will contain <em>at least one</em> of your selected tags.</li>
-                          <li>If no problem matches your tags for a specific rating, the system will search within <strong className="text-foreground">±100 rating points</strong>.</li>
-                          <li>If a match still cannot be found, contest creation will fail. We recommend leaving tags empty or using broad tags for difficult contests!</li>
+                    <TooltipContent side="right" className="max-w-xs p-3 bg-card text-foreground shadow-lg border border-border rounded-sm">
+                      <div className="space-y-2 text-xs leading-relaxed">
+                        <p><strong>How tags work:</strong></p>
+                        <ul className="list-disc pl-4 space-y-1 text-neutral-500">
+                          <li>Every problem will contain <em>at least one</em> of your selected tags.</li>
+                          <li>If no match for a specific rating, the system searches within <strong className="text-foreground">±100 rating points</strong>.</li>
+                          <li>If no match is found, contest creation will fail. Use broad tags for difficult contests!</li>
                         </ul>
                       </div>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-wrap gap-1.5 mb-2">
                 {tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="px-2 py-1 flex items-center gap-1 text-sm bg-accent/10 text-accent hover:bg-accent/20 border-accent/20">
+                  <Badge key={tag} variant="outline" className="px-2 py-0.5 flex items-center gap-1 text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-border">
                     {tag}
-                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-destructive transition-colors"><X className="w-3 h-3" /></button>
+                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors"><X className="w-2.5 h-2.5" /></button>
                   </Badge>
                 ))}
               </div>
               <Select key={tags.length} onValueChange={handleAddTag}>
-                <SelectTrigger className="w-full h-11 bg-card border-border/60 shadow-sm focus:ring-accent">
+                <SelectTrigger className="w-full h-10 bg-transparent border-border rounded-sm text-sm focus:ring-0 focus:border-foreground">
                   <SelectValue placeholder="Select a tag to add..." />
                 </SelectTrigger>
-                <SelectContent className="max-h-64 bg-card border-border/80 shadow-lg p-1">
+                <SelectContent className="max-h-64 bg-card border-border shadow-lg rounded-sm p-1">
                   {VALID_TAGS.filter(t => !tags.includes(t)).map(tag => (
-                    <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                    <SelectItem key={tag} value={tag} className="text-sm">{tag}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full h-12 text-md font-medium shadow-md">
+            <Button type="submit" disabled={loading} className="w-full h-11 font-medium bg-foreground text-background hover:bg-foreground/90">
               {loading ? (
-                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generating Contest...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Contest...</>
               ) : (
                 'Create Contest'
               )}
