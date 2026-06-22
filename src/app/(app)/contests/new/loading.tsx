@@ -24,7 +24,7 @@ export default function CreateContestLoading() {
               <div className="space-y-1.5">
                 <span className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider">
                   <div className="w-3.5 h-3.5 bg-neutral-300 dark:bg-neutral-700 rounded-sm" />
-                  Difficulty Level (1–109)
+                  Difficulty Level (1 to 109)
                 </span>
                 <div className="h-10 w-full bg-card rounded-sm border border-border animate-pulse" />
               </div>

@@ -28,7 +28,7 @@ export default function Results({ contest, standings, currentUserId }: { contest
 
       <Card className="bg-card border border-border rounded-md overflow-hidden">
         <CardHeader className="border-b border-border bg-neutral-50 dark:bg-neutral-900 py-3">
-          <CardTitle className="text-sm font-semibold text-foreground">Final Results — {contest.title}</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">Final Results | {contest.title}</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
           <Table>

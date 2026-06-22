@@ -136,7 +136,7 @@ export default function CreateContestPage() {
 
             <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
               <div className="space-y-1.5">
-                <Label htmlFor="level" className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Activity className="w-3.5 h-3.5" /> Difficulty Level (1–109)</Label>
+                <Label htmlFor="level" className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Activity className="w-3.5 h-3.5" /> Difficulty Level (1 to 109)</Label>
                 <Input
                   id="level"
                   type="number"
