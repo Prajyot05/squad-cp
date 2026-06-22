@@ -32,21 +32,33 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
     return () => clearInterval(intv)
   }, [contest.started_at, durationSecs])
 
+  const me = contest.participants?.find((p: any) => p.user_id === currentUserId)
+  const myHandle = me?.user?.cf_handle
+
   // Background auto-sync every 45 seconds to reduce server load spikes and improve UX
   useEffect(() => {
-    if (!contest.id) return
-    const intv = setInterval(() => {
-      fetch(`/api/contests/${contest.id}/sync`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && onSyncSuccess) {
-            onSyncSuccess()
-          }
+    if (!contest.id || !myHandle) return
+    const intv = setInterval(async () => {
+      try {
+        const cfRes = await fetch(`https://codeforces.com/api/user.status?handle=${myHandle}`)
+        const cfData = await cfRes.json()
+        if (cfData.status !== "OK") return
+        
+        const res = await fetch(`/api/contests/${contest.id}/sync`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissions: cfData.result })
         })
-        .catch(console.error)
+        const data = await res.json()
+        if (data.success && onSyncSuccess) {
+          onSyncSuccess()
+        }
+      } catch (err) {
+        console.error(err)
+      }
     }, 45000)
     return () => clearInterval(intv)
-  }, [contest.id, onSyncSuccess])
+  }, [contest.id, myHandle, onSyncSuccess])
 
   const mins = Math.floor(timeLeft / 60)
   const secs = timeLeft % 60
@@ -54,14 +66,24 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
   const isUrgent = timeLeft > 0 && timeLeft < 300 // Last 5 minutes
 
   const handleSync = async () => {
+    if (!myHandle) return toast.error('CF Handle missing')
     setSyncing(true)
     
     toast.promise(
-      fetch(`/api/contests/${contest.id}/sync`, { method: 'POST' }).then(async (res) => {
+      (async () => {
+        const cfRes = await fetch(`https://codeforces.com/api/user.status?handle=${myHandle}`)
+        const cfData = await cfRes.json()
+        if (cfData.status !== "OK") throw new Error('Failed to fetch from Codeforces')
+        
+        const res = await fetch(`/api/contests/${contest.id}/sync`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissions: cfData.result })
+        })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to sync')
         return data
-      }),
+      })(),
       {
         loading: 'Syncing with Codeforces...',
         success: (data) => {

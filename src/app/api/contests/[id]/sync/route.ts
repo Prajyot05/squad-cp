@@ -26,13 +26,10 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Contest not active' }, { status: 400 })
     }
 
-    const res = await fetch(`https://codeforces.com/api/user.status?handle=${profile.cf_handle}`)
-    const data = await res.json()
-    if (data.status !== "OK") {
-      return NextResponse.json({ error: 'CF API error' }, { status: 502 })
+    const { submissions } = await req.json()
+    if (!submissions || !Array.isArray(submissions)) {
+      return NextResponse.json({ error: 'Invalid submissions payload' }, { status: 400 })
     }
-
-    const submissions = data.result
     let totalScore = 0
     let problemsSolved = 0
     let lastSolveSec = 0
