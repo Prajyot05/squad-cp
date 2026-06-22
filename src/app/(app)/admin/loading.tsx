@@ -1,42 +1,41 @@
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from '@/components/ui/card'
+
 export default function AdminLoading() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 mt-2 animate-in fade-in duration-200">
-      {/* Header */}
-      <div className="h-7 w-20 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
+      {/* Header — matches: text-2xl font-bold */}
+      <div className="h-8 w-[72px] bg-neutral-200 dark:bg-neutral-800 rounded-sm animate-pulse" />
 
-      {/* Problem Cache card */}
-      <div className="bg-card border border-border rounded-md">
-        {/* Card header */}
-        <div className="p-6 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
-            <div className="h-4 w-28 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
-          </div>
-          <div className="h-3 w-56 bg-neutral-100 dark:bg-neutral-900 rounded-sm" />
-        </div>
-
-        {/* Card content */}
-        <div className="px-6 pb-6 space-y-5">
-          {/* Stats panel */}
+      {/* Problem Cache card — uses actual Card components */}
+      <Card className="bg-card border border-border rounded-md">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <div className="w-4 h-4 bg-neutral-300 dark:bg-neutral-700 rounded-sm animate-pulse" />
+            Problem Cache
+          </CardTitle>
+          <CardDescription className="text-xs text-neutral-500">Manage the local Codeforces problem cache.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {/* Stats panel — identical wrapper classes */}
           <div className="grid grid-cols-2 gap-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
-            <div className="space-y-2">
-              <div className="h-2.5 w-28 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
-              <div className="h-7 w-16 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Problems Available</p>
+              <div className="h-8 w-[64px] bg-neutral-200 dark:bg-neutral-800 rounded-sm animate-pulse" />
             </div>
-            <div className="space-y-2">
-              <div className="h-2.5 w-28 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
-              <div className="h-5 w-14 bg-neutral-200 dark:bg-neutral-800 rounded-sm" />
-              <div className="h-2.5 w-32 bg-neutral-100 dark:bg-neutral-900 rounded-sm" />
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Last Synchronized</p>
+              <div className="h-5 w-[56px] bg-neutral-200 dark:bg-neutral-800 rounded-sm animate-pulse" />
+              <div className="h-3 w-[140px] bg-neutral-100 dark:bg-neutral-900 rounded-sm animate-pulse mt-1" />
             </div>
           </div>
 
-          {/* Refresh button */}
-          <div className="pt-1 space-y-2">
-            <div className="h-9 w-44 bg-neutral-900 dark:bg-neutral-100 rounded-md opacity-20" />
-            <div className="h-2.5 w-72 bg-neutral-100 dark:bg-neutral-900 rounded-sm" />
+          {/* Button area */}
+          <div className="pt-1">
+            <div className="h-9 w-[178px] bg-neutral-900 dark:bg-neutral-100 rounded-md opacity-[0.12]" />
+            <div className="h-3 w-[380px] max-w-full bg-neutral-100 dark:bg-neutral-900 rounded-sm animate-pulse mt-2" />
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
