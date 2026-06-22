@@ -22,7 +22,8 @@ export default async function ContestPage(props: { params: Promise<{ id: string 
       },
       participants: {
         include: { user: { select: { username: true, cf_handle: true, skill_rating: true, current_level: true } } },
-      }
+      },
+      submissions: true
     }
   })
 
