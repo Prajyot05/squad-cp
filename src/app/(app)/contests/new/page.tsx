@@ -115,7 +115,7 @@ export default function CreateContestPage() {
   ]
 
   return (
-    <div className="max-w-xl mx-auto mt-2">
+    <div className="max-w-4xl mx-auto mt-2">
       <Card className="bg-card border border-border rounded-md overflow-hidden">
         <CardHeader>
           <CardTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2"><Plus className="w-5 h-5 text-neutral-400" /> Create Contest</CardTitle>

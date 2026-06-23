@@ -55,12 +55,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         const currentSkill = { rating: p.user.skill_rating, contestsPlayed: p.user.skill_contests }
         const newSkill = updateSkillRating(currentSkill, problemResults, contest.duration_min, participantCount, hasTagFilter)
         
-        let solveTimeFraction: number | null = null
-        if (p.last_solve_sec) {
-          solveTimeFraction = p.last_solve_sec / (contest.duration_min * 60)
-        }
-        
-        const newLevelData = evaluateLevelProgression(p.user.current_level, p.problems_solved, solveTimeFraction)
+        const newLevelData = evaluateLevelProgression(p.user.current_level, contest.level, p.problems_solved, contest.problems.length)
 
         // Update Participant
         await tx.contestParticipant.update({

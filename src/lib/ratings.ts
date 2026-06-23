@@ -44,17 +44,20 @@ export function updateSkillRating(
 
 export function evaluateLevelProgression(
   currentLevel: number,
+  contestLevel: number,
   problemsSolved: number,
-  solveTimeFraction: number | null
+  totalProblems: number
 ): { newLevel: number; change: "advance" | "stay" | "demote" } {
-  if (problemsSolved === 4) {
-    return { newLevel: Math.min(109, currentLevel + 1), change: "advance" };
+  let newLevel;
+  if (problemsSolved === totalProblems && totalProblems > 0) {
+    newLevel = Math.min(109, contestLevel);
+  } else {
+    newLevel = Math.max(1, contestLevel - 1);
   }
-  if (problemsSolved === 3 && solveTimeFraction !== null && solveTimeFraction <= 0.5) {
-    return { newLevel: Math.min(109, currentLevel + 1), change: "advance" };
-  }
-  if (problemsSolved >= 2) {
-    return { newLevel: currentLevel, change: "stay" };
-  }
-  return { newLevel: Math.max(1, currentLevel - 1), change: "demote" };
+  
+  let change: "advance" | "stay" | "demote" = "stay";
+  if (newLevel > currentLevel) change = "advance";
+  else if (newLevel < currentLevel) change = "demote";
+  
+  return { newLevel, change };
 }

@@ -13,6 +13,7 @@ function RankMedal({ rank }: { rank: number }) {
 
 export default async function LeaderboardPage() {
   const users = await db.profile.findMany({
+    where: { skill_contests: { gt: 0 } },
     orderBy: { skill_rating: 'desc' },
     take: 50
   })
@@ -23,7 +24,7 @@ export default async function LeaderboardPage() {
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Leaderboard</h1>
         <p className="text-sm text-neutral-500">Top 50 participants ranked by Skill Rating.</p>
       </div>
-      
+
       {users.length > 0 && (
         <div className="grid grid-cols-3 gap-3 items-end px-2 sm:px-8">
           {users[1] && (

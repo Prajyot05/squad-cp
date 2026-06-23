@@ -13,7 +13,7 @@ export default function AdminClientPage({ initialCount, lastFetched }: { initial
 
   const handleRefresh = async () => {
     setLoading(true)
-    
+
     toast.promise(
       fetch('/api/admin/refresh-cache', { method: 'POST' }).then(async (res) => {
         const data = await res.json()
@@ -47,7 +47,7 @@ export default function AdminClientPage({ initialCount, lastFetched }: { initial
   return (
     <div className="max-w-2xl mx-auto space-y-6 mt-2">
       <h1 className="text-2xl font-bold tracking-tight text-foreground">Admin</h1>
-      
+
       <Card className="bg-card border border-border rounded-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm font-semibold"><Database className="w-4 h-4 text-neutral-400" /> Problem Cache</CardTitle>
@@ -65,7 +65,7 @@ export default function AdminClientPage({ initialCount, lastFetched }: { initial
               {fetchedAt && <p className="text-[10px] text-neutral-400 font-mono">{new Date(fetchedAt).toLocaleString()}</p>}
             </div>
           </div>
-          
+
           <div className="pt-1">
             <Button onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto h-9 gap-2 bg-foreground text-background hover:bg-foreground/90 text-xs">
               {loading ? (
