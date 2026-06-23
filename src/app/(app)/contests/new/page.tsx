@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Loader2, Plus, X, Timer, Activity, Hash, Info } from 'lucide-react'
+import { Loader2, Plus, X, Timer, Activity, Hash, Info, Settings2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { cn } from '@/lib/utils'
 
 export default function CreateContestPage() {
   const router = useRouter()
@@ -115,130 +116,164 @@ export default function CreateContestPage() {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto mt-2">
-      <Card className="bg-card border border-border rounded-md overflow-hidden">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2"><Plus className="w-5 h-5 text-neutral-400" /> Create Contest</CardTitle>
-          <CardDescription className="text-xs text-neutral-500">Configure your practice session and invite your squad.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
-              <Label htmlFor="title" className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Contest Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                required
-                className="h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm"
-              />
-            </div>
+    <div className="w-full mt-2 animate-in fade-in duration-300">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
+        {/* Left Column - Context */}
+        <div className="md:col-span-4 space-y-4">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <Plus className="w-6 h-6 text-neutral-400" />
+            Create Contest
+          </h1>
+          <p className="text-base text-neutral-500 leading-relaxed">
+            Configure your practice session. Choose a difficulty level based on the Codeforces rating scale, set a duration, and optionally narrow down the problem set using specific tags.
+          </p>
+          <div className="hidden md:block pt-6 border-t border-border mt-8">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2"><Settings2 className="w-4 h-4 text-neutral-500" /> Pro Tips</h3>
+            <ul className="space-y-3 text-sm text-neutral-500 list-disc pl-4">
+              <li>A level of 12 roughly correlates to 1200-1600 rated problems.</li>
+              <li>Selecting too many specific tags might result in no problems being found.</li>
+              <li>Invite your friends by sharing the lobby link once created.</li>
+            </ul>
+          </div>
+        </div>
 
-            <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
-              <div className="space-y-1.5">
-                <Label htmlFor="level" className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Activity className="w-3.5 h-3.5" /> Difficulty Level (1 to 109)</Label>
-                <Input
-                  id="level"
-                  type="number"
-                  min={1}
-                  max={109}
-                  value={level}
-                  onChange={e => setLevel(Number(e.target.value))}
-                  required
-                  className="h-10 bg-background border-border rounded-sm focus:border-foreground focus:ring-0 text-sm font-mono"
-                />
-              </div>
-              <div className="bg-card p-3 rounded-sm border border-border">
-                <p className="text-[10px] text-neutral-500 font-medium uppercase tracking-wider mb-2">Estimated Ratings</p>
-                <div className="flex gap-1.5">
-                  {estimatedRatings.map((r, i) => (
-                    <Badge key={i} variant="outline" className="font-mono text-[10px] text-foreground bg-neutral-100 dark:bg-neutral-800 border-border">{r}</Badge>
-                  ))}
+        {/* Right Column - Form */}
+        <div className="md:col-span-8 md:max-w-2xl">
+          <Card className="bg-card border border-border rounded-md shadow-sm">
+            <CardHeader className="pb-4 border-b border-border bg-neutral-50/50 dark:bg-neutral-900/50">
+              <CardTitle className="text-base font-semibold">Contest Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Title */}
+                <div className="space-y-2.5">
+                  <Label htmlFor="title" className="text-sm font-medium text-neutral-500">Contest Title</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    required
+                    className="h-11 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-base"
+                  />
                 </div>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Timer className="w-3.5 h-3.5" /> Duration</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {[30, 60, 90, 120].map(mins => (
-                  <Button
-                    key={mins}
-                    type="button"
-                    variant={duration === mins ? "default" : "outline"}
-                    className={duration === mins ? "bg-foreground text-background hover:bg-foreground/90 font-mono" : "text-foreground border-border hover:border-neutral-400 dark:hover:border-neutral-600 font-mono"}
-                    onClick={() => setDuration(mins)}
-                  >
-                    {mins}m
-                  </Button>
-                ))}
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Input
-                  type="number"
-                  min={15}
-                  max={300}
-                  step={15}
-                  value={duration}
-                  onChange={e => setDuration(Number(e.target.value))}
-                  required
-                  className="w-24 h-10 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-sm font-mono"
-                />
-                <span className="text-xs text-neutral-400">Custom minutes</span>
-              </div>
-            </div>
+                {/* Difficulty Section */}
+                <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-5 rounded-md border border-border">
+                  <div className="space-y-2.5">
+                    <Label htmlFor="level" className="flex items-center gap-2 text-sm font-medium text-foreground"><Activity className="w-4 h-4 text-neutral-500" /> Difficulty Level (1 to 109)</Label>
+                    <p className="text-xs text-neutral-500">Determines the rating range of the selected problems.</p>
+                    <Input
+                      id="level"
+                      type="number"
+                      min={1}
+                      max={109}
+                      value={level}
+                      onChange={e => setLevel(Number(e.target.value))}
+                      required
+                      className="h-11 bg-background border-border rounded-sm focus:border-foreground focus:ring-0 text-base font-mono max-w-[200px]"
+                    />
+                  </div>
+                  <div className="bg-card p-4 rounded-sm border border-border">
+                    <p className="text-xs text-neutral-500 font-medium uppercase tracking-wider mb-3">Estimated Problem Ratings</p>
+                    <div className="flex flex-wrap gap-2">
+                      {estimatedRatings.map((r, i) => (
+                        <Badge key={i} variant="outline" className="px-2.5 py-1 font-mono text-sm text-foreground bg-neutral-100 dark:bg-neutral-800 border-border">
+                          {r}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider"><Hash className="w-3.5 h-3.5" /> Tags (Optional)</Label>
-                <TooltipProvider delay={100}>
-                  <Tooltip>
-                    <TooltipTrigger type="button" className="cursor-help flex items-center">
-                      <Info className="w-3.5 h-3.5 text-neutral-400 hover:text-foreground transition-colors" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs p-3 bg-card text-foreground shadow-lg border border-border rounded-sm">
-                      <div className="space-y-2 text-xs leading-relaxed">
-                        <p><strong>How tags work:</strong></p>
-                        <ul className="list-disc pl-4 space-y-1 text-neutral-500">
-                          <li>Every problem will contain <em>at least one</em> of your selected tags.</li>
-                          <li>If no match for a specific rating, the system searches within <strong className="text-foreground">±100 rating points</strong>.</li>
-                          <li>If no match is found, contest creation will fail. Use broad tags for difficult contests!</li>
-                        </ul>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {tags.map(tag => (
-                  <Badge key={tag} variant="outline" className="px-2 py-0.5 flex items-center gap-1 text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-border">
-                    {tag}
-                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors"><X className="w-2.5 h-2.5" /></button>
-                  </Badge>
-                ))}
-              </div>
-              <Select key={tags.length} onValueChange={handleAddTag}>
-                <SelectTrigger className="w-full h-10 bg-transparent border-border rounded-sm text-sm focus:ring-0 focus:border-foreground">
-                  <SelectValue placeholder="Select a tag to add..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-64 bg-card border-border shadow-lg rounded-sm p-1">
-                  {VALID_TAGS.filter(t => !tags.includes(t)).map(tag => (
-                    <SelectItem key={tag} value={tag} className="text-sm">{tag}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                {/* Duration */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2 text-sm font-medium text-foreground"><Timer className="w-4 h-4 text-neutral-500" /> Duration</Label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[30, 60, 90, 120].map(mins => (
+                      <Button
+                        key={mins}
+                        type="button"
+                        variant={duration === mins ? "default" : "outline"}
+                        className={cn(
+                          "h-11 text-base font-mono",
+                          duration === mins ? "bg-foreground text-background hover:bg-foreground/90" : "text-foreground border-border hover:border-neutral-400 dark:hover:border-neutral-600"
+                        )}
+                        onClick={() => setDuration(mins)}
+                      >
+                        {mins}m
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-3 pt-2">
+                    <Input
+                      type="number"
+                      min={15}
+                      max={300}
+                      step={15}
+                      value={duration}
+                      onChange={e => setDuration(Number(e.target.value))}
+                      required
+                      className="w-28 h-11 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-base font-mono"
+                    />
+                    <span className="text-sm text-neutral-500">Custom minutes</span>
+                  </div>
+                </div>
 
-            <Button type="submit" disabled={loading} className="w-full h-11 font-medium bg-foreground text-background hover:bg-foreground/90">
-              {loading ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Contest...</>
-              ) : (
-                'Create Contest'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+                {/* Tags */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Label className="flex items-center gap-2 text-sm font-medium text-foreground"><Hash className="w-4 h-4 text-neutral-500" /> Tags (Optional)</Label>
+                    <TooltipProvider delay={100}>
+                      <Tooltip>
+                        <TooltipTrigger type="button" className="cursor-help flex items-center">
+                          <Info className="w-4 h-4 text-neutral-400 hover:text-foreground transition-colors" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs p-4 bg-card text-foreground shadow-lg border border-border rounded-sm">
+                          <div className="space-y-2 text-sm leading-relaxed">
+                            <p><strong>How tags work:</strong></p>
+                            <ul className="list-disc pl-4 space-y-1.5 text-neutral-500">
+                              <li>Every problem will contain <em>at least one</em> of your selected tags.</li>
+                              <li>If no match for a specific rating, the system searches within <strong className="text-foreground">±100 rating points</strong>.</li>
+                              <li>If no match is found, contest creation will fail. Use broad tags for difficult contests!</li>
+                            </ul>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+                    {tags.length === 0 && <span className="text-sm text-neutral-400 italic flex items-center h-8">No tags selected</span>}
+                    {tags.map(tag => (
+                      <Badge key={tag} variant="outline" className="px-3 py-1.5 flex items-center gap-2 text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-border">
+                        {tag}
+                        <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors bg-neutral-200 dark:bg-neutral-700 rounded-full p-0.5"><X className="w-3 h-3" /></button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <Select key={tags.length} onValueChange={handleAddTag}>
+                    <SelectTrigger className="w-full h-11 bg-transparent border-border rounded-sm text-base focus:ring-0 focus:border-foreground">
+                      <SelectValue placeholder="Select a tag to add..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64 bg-card border-border shadow-lg rounded-sm p-1">
+                      {VALID_TAGS.filter(t => !tags.includes(t)).map(tag => (
+                        <SelectItem key={tag} value={tag} className="text-base py-2">{tag}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full h-12 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 mt-4">
+                  {loading ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generating Contest...</>
+                  ) : (
+                    'Create Contest'
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

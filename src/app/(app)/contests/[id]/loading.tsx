@@ -3,9 +3,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 export default function ContestLoading() {
   return (
-    <div className="max-w-6xl mx-auto mt-2 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
+    <div className="w-full mt-2 grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-200">
       {/* Left panel */}
-      <div className="lg:col-span-2 space-y-5">
+      <div className="lg:col-span-2 space-y-8">
         {/* Timer header — actual Card with same structure */}
         <Card className="bg-card border border-border rounded-md">
           <CardHeader className="pb-3 border-b border-border">

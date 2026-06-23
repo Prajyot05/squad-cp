@@ -44,8 +44,8 @@ export default function ContestWrapper({ initialContest, currentUserId }: { init
   }, [contest.id, supabase])
 
   return (
-    <div className="max-w-6xl mx-auto mt-2 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
+    <div className="w-full mt-2 grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
+      <div className="lg:col-span-2 space-y-8">
         {contest.status === 'lobby' && <Lobby contest={contest} currentUserId={currentUserId} onStartSuccess={refreshData} />}
         {contest.status === 'active' && <LiveContest contest={contest} currentUserId={currentUserId} onSyncSuccess={refreshData} />}
         {contest.status === 'finished' && <Results contest={contest} standings={standings} currentUserId={currentUserId} />}

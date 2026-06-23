@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { Loader2, RefreshCw, Database } from 'lucide-react'
+import { Loader2, RefreshCw, Database, ShieldAlert } from 'lucide-react'
 
 export default function AdminClientPage({ initialCount, lastFetched }: { initialCount: number, lastFetched?: Date }) {
   const [loading, setLoading] = useState(false)
@@ -45,39 +45,56 @@ export default function AdminClientPage({ initialCount, lastFetched }: { initial
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 mt-2">
-      <h1 className="text-2xl font-bold tracking-tight text-foreground">Admin</h1>
+    <div className="w-full mt-2 animate-in fade-in duration-300">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
+        {/* Left Column - Context */}
+        <div className="md:col-span-4 space-y-4">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <ShieldAlert className="w-6 h-6 text-red-500" /> 
+            Admin Portal
+          </h1>
+          <p className="text-base text-neutral-500 leading-relaxed">
+            Manage system-wide configurations and data caches. Actions performed here affect the entire platform.
+          </p>
+        </div>
 
-      <Card className="bg-card border border-border rounded-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold"><Database className="w-4 h-4 text-neutral-400" /> Problem Cache</CardTitle>
-          <CardDescription className="text-xs text-neutral-500">Manage the local Codeforces problem cache.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="grid grid-cols-2 gap-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-sm border border-border">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Problems Available</p>
-              <p className="text-2xl font-bold font-mono text-foreground">{count}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 mb-1">Last Synchronized</p>
-              <p className="text-sm font-medium text-foreground">{formatRelativeTime(fetchedAt)}</p>
-              {fetchedAt && <p className="text-[10px] text-neutral-400 font-mono">{new Date(fetchedAt).toLocaleString()}</p>}
-            </div>
-          </div>
+        {/* Right Column - Controls */}
+        <div className="md:col-span-8 md:max-w-2xl space-y-6">
+          <Card className="bg-card border border-border rounded-md shadow-sm">
+            <CardHeader className="pb-4 border-b border-border bg-neutral-50/50 dark:bg-neutral-900/50">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Database className="w-4 h-4 text-neutral-500" /> 
+                Problem Cache
+              </CardTitle>
+              <CardDescription className="text-sm text-neutral-500">Manage the local Codeforces problem cache.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              <div className="grid grid-cols-2 gap-6 bg-neutral-50 dark:bg-neutral-900 p-5 rounded-md border border-border">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-2">Problems Available</p>
+                  <p className="text-3xl font-bold font-mono text-foreground">{count}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-2">Last Synchronized</p>
+                  <p className="text-base font-medium text-foreground">{formatRelativeTime(fetchedAt)}</p>
+                  {fetchedAt && <p className="text-xs text-neutral-400 font-mono mt-1">{new Date(fetchedAt).toLocaleString()}</p>}
+                </div>
+              </div>
 
-          <div className="pt-1">
-            <Button onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto h-9 gap-2 bg-foreground text-background hover:bg-foreground/90 text-xs">
-              {loading ? (
-                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Synchronizing...</>
-              ) : (
-                <><RefreshCw className="w-3.5 h-3.5" /> Refresh Problem Cache</>
-              )}
-            </Button>
-            <p className="text-[10px] text-neutral-400 mt-2">Fetches the latest problemset from Codeforces and updates the local database.</p>
-          </div>
-        </CardContent>
-      </Card>
+              <div className="pt-2 border-t border-border mt-6">
+                <Button onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto h-11 gap-2 bg-foreground text-background hover:bg-foreground/90 text-sm font-medium mt-6">
+                  {loading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Synchronizing...</>
+                  ) : (
+                    <><RefreshCw className="w-4 h-4" /> Refresh Problem Cache</>
+                  )}
+                </Button>
+                <p className="text-xs text-neutral-500 mt-3">Fetches the latest problemset from Codeforces and updates the local database. This may take a few moments.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
