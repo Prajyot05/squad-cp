@@ -12,6 +12,7 @@ function RankMedal({ rank }: { rank: number }) {
 
 export default async function LeaderboardPage() {
   const users = await db.profile.findMany({
+    where: { skill_contests: { gt: 0 } },
     orderBy: { skill_rating: 'desc' },
     take: 50
   })

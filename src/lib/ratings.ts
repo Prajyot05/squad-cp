@@ -50,7 +50,7 @@ export function evaluateLevelProgression(
 ): { newLevel: number; change: "advance" | "stay" | "demote" } {
   let newLevel;
   if (problemsSolved === totalProblems && totalProblems > 0) {
-    newLevel = Math.min(109, contestLevel);
+    newLevel = Math.min(109, contestLevel + 1);
   } else {
     newLevel = Math.max(1, contestLevel - 1);
   }

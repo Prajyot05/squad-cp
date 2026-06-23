@@ -56,7 +56,7 @@ export default async function Dashboard() {
           </CardHeader>
           <CardContent className="pb-6">
             <div className="flex items-baseline gap-3">
-              <div className="text-5xl font-mono font-bold tracking-tighter text-foreground">{profile?.skill_rating}</div>
+              <div className="text-4xl font-mono font-bold tracking-tighter text-foreground">{profile?.skill_rating}</div>
               {lastDelta !== 0 && (
                 <div className={cn("flex items-center text-sm font-mono font-bold px-2 py-0.5 rounded-sm", lastDelta > 0 ? "text-emerald-500 bg-emerald-500/10" : "text-red-500 bg-red-500/10")}>
                   {lastDelta > 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
@@ -76,12 +76,12 @@ export default async function Dashboard() {
           </CardHeader>
           <CardContent className="pb-6">
             <div className="flex items-baseline gap-2">
-              <div className="text-5xl font-mono font-bold tracking-tighter text-foreground">{profile?.current_level}</div>
+              <div className="text-4xl font-mono font-bold tracking-tighter text-foreground">{profile?.current_level}</div>
               <span className="text-sm text-neutral-500 font-mono">/ 109</span>
             </div>
             <div className="mt-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded-sm h-1.5 overflow-hidden">
-              <div 
-                className="bg-foreground h-full rounded-sm transition-all duration-1000" 
+              <div
+                className="bg-foreground h-full rounded-sm transition-all duration-1000"
                 style={{ width: `${Math.min(100, ((profile?.current_level || 0) / 109) * 100)}%` }}
               />
             </div>
@@ -100,10 +100,10 @@ export default async function Dashboard() {
               <p className="text-2xl font-mono font-bold text-foreground truncate">{profile?.cf_handle}</p>
               <p className="text-sm text-neutral-500 mt-1">Linked Handle</p>
             </div>
-            <a 
-              href={`https://codeforces.com/profile/${profile?.cf_handle}`} 
-              target="_blank" 
-              rel="noreferrer" 
+            <a
+              href={`https://codeforces.com/profile/${profile?.cf_handle}`}
+              target="_blank"
+              rel="noreferrer"
               className={cn(buttonVariants({ variant: 'outline' }), "w-full gap-2 text-neutral-500 hover:text-foreground h-10")}
             >
               View Profile
@@ -116,7 +116,7 @@ export default async function Dashboard() {
       <div className="pt-2">
         <h2 className="text-xl font-bold tracking-tight text-foreground mb-6">Recent Contests</h2>
         {participations.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             icon={Target}
             title="No Contests Yet"
             description="You haven't participated in any contests. Create one to start training!"
@@ -133,8 +133,8 @@ export default async function Dashboard() {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-5">
                     <h3 className="font-semibold text-base truncate pr-2 text-foreground">{p.contest.title}</h3>
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={cn(
                         "text-xs font-mono uppercase shrink-0 px-2 py-0.5",
                         p.contest.status === 'active' && "border-emerald-500/30 text-emerald-500",
