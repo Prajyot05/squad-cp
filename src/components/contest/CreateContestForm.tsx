@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from '@/lib/utils'
+import { getProblemRatings } from '@/lib/ratings'
 
 export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: number }) {
   const router = useRouter()
@@ -108,12 +109,7 @@ export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: 
     }
   }
 
-  const estimatedRatings = [
-    Math.max(800, level * 100),
-    Math.max(800, level * 100 + 100),
-    Math.max(800, level * 100 + 200),
-    Math.max(800, level * 100 + 400),
-  ]
+  const estimatedRatings = getProblemRatings(level);
 
   return (
     <div className="w-full mt-2 animate-in fade-in duration-300">

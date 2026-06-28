@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Target, TrendingUp, TrendingDown, Award, ExternalLink } from 'lucide-react'
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaFire, FaTrophy } from 'react-icons/fa'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import ActivityHeatmap from '@/components/profile/ActivityHeatmap'
+import RatingGraph from '@/components/profile/RatingGraph'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -52,7 +54,7 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card className="bg-card border border-border rounded-md">
           <CardHeader className="pb-3"><CardTitle className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Skill Rating</CardTitle></CardHeader>
           <CardContent className="pb-6"><p className="text-3xl font-mono font-bold text-foreground">{profile?.skill_rating}</p></CardContent>
@@ -69,7 +71,18 @@ export default async function ProfilePage() {
           <CardHeader className="pb-3"><CardTitle className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Peak Level</CardTitle></CardHeader>
           <CardContent className="pb-6"><p className="text-3xl font-mono font-bold text-foreground">{profile?.highest_level}</p></CardContent>
         </Card>
+        <Card className="bg-card border border-border rounded-md">
+          <CardHeader className="pb-3"><CardTitle className="text-xs text-neutral-500 font-medium uppercase tracking-wider flex items-center gap-1.5"><FaFire className="text-orange-500" /> Current Streak</CardTitle></CardHeader>
+          <CardContent className="pb-6"><p className="text-3xl font-mono font-bold text-foreground">{profile?.current_streak} <span className="text-lg text-neutral-500 font-sans">days</span></p></CardContent>
+        </Card>
+        <Card className="bg-card border border-border rounded-md">
+          <CardHeader className="pb-3"><CardTitle className="text-xs text-neutral-500 font-medium uppercase tracking-wider flex items-center gap-1.5"><FaTrophy className="text-yellow-500" /> Max Streak</CardTitle></CardHeader>
+          <CardContent className="pb-6"><p className="text-3xl font-mono font-bold text-foreground">{profile?.max_streak} <span className="text-lg text-neutral-500 font-sans">days</span></p></CardContent>
+        </Card>
       </div>
+
+      <ActivityHeatmap history={history} />
+      <RatingGraph history={history} currentRating={profile?.skill_rating || 800} />
 
       <Card className="bg-card border border-border rounded-md overflow-hidden">
         <CardHeader className="border-b border-border bg-neutral-50 dark:bg-neutral-900 py-4 px-6">

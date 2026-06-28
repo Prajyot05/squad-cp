@@ -84,6 +84,28 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
           }
         })
 
+        const now = new Date();
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        
+        let currentStreak = p.user.current_streak;
+        let maxStreak = p.user.max_streak;
+        let lastActive = p.user.last_active_at ? new Date(p.user.last_active_at) : null;
+        
+        if (lastActive) {
+          lastActive = new Date(Date.UTC(lastActive.getUTCFullYear(), lastActive.getUTCMonth(), lastActive.getUTCDate()));
+          const diffTime = today.getTime() - lastActive.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (diffDays === 1) {
+            currentStreak += 1;
+          } else if (diffDays > 1) {
+            currentStreak = 1;
+          }
+        } else {
+          currentStreak = 1;
+        }
+        maxStreak = Math.max(maxStreak, currentStreak);
+
         // Update Profile
         await tx.profile.update({
           where: { id: p.user_id },
@@ -91,7 +113,10 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
             skill_rating: newSkill.rating,
             skill_contests: newSkill.contestsPlayed,
             current_level: newLevelData.newLevel,
-            highest_level: Math.max(p.user.highest_level, newLevelData.newLevel)
+            highest_level: Math.max(p.user.highest_level, newLevelData.newLevel),
+            current_streak: currentStreak,
+            max_streak: maxStreak,
+            last_active_at: today
           }
         })
       }

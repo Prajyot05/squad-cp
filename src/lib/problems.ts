@@ -1,22 +1,5 @@
 import { db } from '@/lib/db'
-
-export function getProblemRatings(level: number): number[] {
-  const B = 800 + (level - 1) * 25;
-  const spread = Math.min(150, 50 + level);
-  
-  const offsets = [-spread, -Math.floor(spread / 3), Math.floor(spread / 3), spread];
-  const raw = offsets.map(off => B + off);
-  
-  // Snap to nearest 100
-  let snapped = raw.map(r => Math.max(800, Math.min(3500, Math.round(r / 100) * 100)));
-  
-  // Ensure non-decreasing
-  for (let i = 1; i < 4; i++) {
-    if (snapped[i] < snapped[i - 1]) snapped[i] = snapped[i - 1];
-  }
-  
-  return snapped.sort((a, b) => a - b);
-}
+import { getProblemRatings } from '@/lib/ratings'
 
 export async function selectProblems(level: number, tagFilter: string[] | null) {
   const targetRatings = getProblemRatings(level);

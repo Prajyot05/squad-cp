@@ -61,3 +61,36 @@ export function evaluateLevelProgression(
   
   return { newLevel, change };
 }
+
+export function getProblemRatings(level: number): number[] {
+  if (level <= 13) {
+    const earlyLevels: Record<number, number[]> = {
+      1: [800, 800, 800, 800],
+      2: [800, 800, 800, 900],
+      3: [800, 800, 900, 900],
+      4: [800, 900, 900, 900],
+      5: [800, 900, 900, 1000],
+      6: [800, 900, 1000, 1000],
+      7: [800, 1000, 1000, 1000],
+      8: [800, 1000, 1000, 1100],
+      9: [800, 1000, 1100, 1100],
+      10: [800, 1000, 1100, 1200],
+      11: [800, 1000, 1200, 1200],
+      12: [800, 1000, 1200, 1300],
+      13: [800, 1000, 1200, 1400],
+    };
+    return earlyLevels[level] || [800, 800, 800, 800];
+  }
+
+  const base = [800, 1000, 1200, 1400];
+  const cycles = level - 13;
+  const fullCycles = Math.floor(cycles / 4);
+  const remainder = cycles % 4;
+
+  const ratings = base.map(r => r + fullCycles * 100);
+  for (let i = 0; i < remainder; i++) {
+    ratings[i] += 100;
+  }
+
+  return ratings;
+}
