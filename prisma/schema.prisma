@@ -29,8 +29,9 @@ model Profile {
   updated_at      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
   // Relations
-  groups_owned         Group[]
-  group_memberships    GroupMember[]
+  teams_owned          Team[]
+  team_memberships     TeamMember[]
+  notifications        Notification[]
   contests_created     Contest[]
   contest_participants ContestParticipant[]
   submissions          Submission[]
@@ -57,7 +58,7 @@ model ProblemCache {
   @@map("problem_cache")
 }
 
-model Group {
+model Team {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   description String?
@@ -67,24 +68,45 @@ model Group {
 
   // Relations
   owner       Profile       @relation(fields: [owner_id], references: [id])
-  members     GroupMember[]
+  members     TeamMember[]
   contests    Contest[]
+  notifications Notification[]
 
-  @@map("groups")
+  @@map("teams")
 }
 
-model GroupMember {
-  group_id  String   @db.Uuid
+model TeamMember {
+  team_id   String   @db.Uuid
   user_id   String   @db.Uuid
   role      String   @default("member") // "owner" | "member"
   joined_at DateTime @default(now()) @db.Timestamptz(6)
 
   // Relations
-  group     Group    @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  team      Team     @relation(fields: [team_id], references: [id], onDelete: Cascade)
   user      Profile  @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@id([group_id, user_id])
-  @@map("group_members")
+  @@id([team_id, user_id])
+  @@map("team_members")
+}
+
+model Notification {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String   @db.Uuid
+  team_id     String?  @db.Uuid
+  contest_id  String?  @db.Uuid
+  type        String   // "contest_created" | "contest_started" | "contest_ended"
+  title       String
+  message     String
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user        Profile  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  team        Team?    @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  contest     Contest? @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, is_read])
+  @@map("notifications")
 }
 
 model Contest {
@@ -95,7 +117,8 @@ model Contest {
   tag_filter   String[]
   status       String    @default("lobby") // "lobby" | "active" | "finished"
   creator_id   String    @db.Uuid
-  group_id     String?   @db.Uuid
+  is_team_mode Boolean   @default(false)
+  team_id      String?   @db.Uuid
   invite_code  String    @unique @default(dbgenerated("substring(gen_random_uuid()::text, 1, 8)"))
   started_at   DateTime? @db.Timestamptz(6)
   ended_at     DateTime? @db.Timestamptz(6)
@@ -103,11 +126,12 @@ model Contest {
 
   // Relations
   creator      Profile              @relation(fields: [creator_id], references: [id])
-  group        Group?               @relation(fields: [group_id], references: [id])
+  team         Team?                @relation(fields: [team_id], references: [id])
   problems     ContestProblem[]
   participants ContestParticipant[]
   submissions  Submission[]
   rating_history RatingHistory[]
+  notifications Notification[]
 
   @@index([status])
   @@map("contests")
@@ -137,6 +161,8 @@ model ContestParticipant {
   problems_solved Int      @default(0) @db.SmallInt
   last_solve_sec  Int?
   final_rank      Int?
+  wrong_attempts  Int      @default(0)
+  penalty_time    Int      @default(0)
   
   skill_before    Int?
   skill_after     Int?
@@ -171,6 +197,7 @@ model Submission {
 
   @@index([contest_id, user_id, problem_slot])
   @@map("submissions")
+  
 }
 
 model RatingHistory {
@@ -195,4 +222,5 @@ model RatingHistory {
 
   @@index([user_id, created_at(sort: Desc)])
   @@map("rating_history")
+  
 }

@@ -7,13 +7,31 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export default function Results({ contest, standings, currentUserId }: { contest: any, standings: any[], currentUserId: string }) {
-  const sorted = [...standings].sort((a, b) => (a.final_rank || 999) - (b.final_rank || 999))
+  const sorted = [...standings].sort((a, b) => {
+    if (contest.is_team_mode) {
+      if (a.problems_solved !== b.problems_solved) return b.problems_solved - a.problems_solved
+      return a.penalty_time - b.penalty_time
+    } else {
+      return (a.final_rank || 999) - (b.final_rank || 999)
+    }
+  })
   const winner = sorted[0]
 
   return (
     <div className="space-y-5">
       
-      {winner && (
+      {contest.is_team_mode ? (
+        <div className="border-t-2 border-blue-500 bg-card border border-border rounded-md p-5 flex items-center gap-5">
+          <div className="w-12 h-12 rounded-md bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+            <Trophy className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-wider text-blue-500 mb-0.5">Team Performance</p>
+            <p className="text-2xl font-bold text-foreground">{winner?.total_score || 0} pts</p>
+            <p className="text-xs text-neutral-500 mt-0.5 font-mono">{winner?.problems_solved || 0} problems solved · {Math.floor((winner?.penalty_time || 0) / 60)}m penalty</p>
+          </div>
+        </div>
+      ) : winner && (
         <div className="border-t-2 border-amber-500 bg-card border border-border rounded-md p-5 flex items-center gap-5">
           <div className="w-12 h-12 rounded-md bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
             <Trophy className="w-6 h-6" />
@@ -34,9 +52,13 @@ export default function Results({ contest, standings, currentUserId }: { contest
           <Table>
             <TableHeader>
               <TableRow className="bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-900">
-                <TableHead className="w-14 text-center text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Rank</TableHead>
+                <TableHead className="w-14 text-center text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
+                  {contest.is_team_mode ? '#' : 'Rank'}
+                </TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium">User</TableHead>
-                <TableHead className="text-right text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Score</TableHead>
+                <TableHead className="text-right text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
+                  {contest.is_team_mode ? 'Solved / Penalty' : 'Score'}
+                </TableHead>
                 <TableHead className="text-right text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Skill</TableHead>
                 <TableHead className="text-right pr-4 text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Level</TableHead>
               </TableRow>
@@ -50,12 +72,21 @@ export default function Results({ contest, standings, currentUserId }: { contest
                 return (
                   <TableRow key={p.id} className={cn(isMe ? 'bg-neutral-50 dark:bg-neutral-900/50' : '', "hover:bg-neutral-50 dark:hover:bg-neutral-900/30 transition-colors")}>
                     <TableCell className="text-center font-mono font-bold text-sm">
-                      {p.final_rank === 1 ? '🥇' : p.final_rank === 2 ? '🥈' : p.final_rank === 3 ? '🥉' : <span className="text-neutral-500">{p.final_rank}</span>}
+                      {contest.is_team_mode ? 1 : (
+                        p.final_rank === 1 ? '🥇' : p.final_rank === 2 ? '🥈' : p.final_rank === 3 ? '🥉' : <span className="text-neutral-500">{p.final_rank}</span>
+                      )}
                     </TableCell>
                     <TableCell className="font-medium text-sm text-foreground">
                       {p.user.username} {isMe && <Badge variant="outline" className="ml-2 text-[9px] font-mono uppercase bg-neutral-200 dark:bg-neutral-800 text-foreground border-border">YOU</Badge>}
                     </TableCell>
-                    <TableCell className="text-right font-mono font-bold text-sm">{p.total_score}</TableCell>
+                    <TableCell className="text-right font-mono font-bold text-sm">
+                      {contest.is_team_mode ? (
+                        <div className="flex flex-col items-end">
+                          <span className={p.problems_solved > 0 ? 'text-emerald-500' : 'text-neutral-500'}>{p.problems_solved}</span>
+                          <span className="text-[10px] text-neutral-400 font-normal">{Math.floor(p.penalty_time / 60)}m</span>
+                        </div>
+                      ) : p.total_score}
+                    </TableCell>
                     <TableCell className="text-right">
                       <span className="font-mono text-sm">{p.skill_after}</span>
                       <span className={cn("ml-2 text-[10px] font-mono font-semibold inline-flex items-center", 

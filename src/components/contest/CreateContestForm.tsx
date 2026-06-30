@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Loader2, Plus, X, Timer, Activity, Hash, Info, Settings2 } from 'lucide-react'
+import { Loader2, Plus, X, Timer, Activity, Hash, Info, Settings2, Users } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -24,14 +24,30 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from '@/lib/utils'
 import { getProblemRatings } from '@/lib/ratings'
+import { useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: number }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const defaultTeam = searchParams.get('team')
+
   const [title, setTitle] = useState('Practice Contest')
   const [level, setLevel] = useState(suggestedLevel)
   const [duration, setDuration] = useState(120)
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [isTeamMode, setIsTeamMode] = useState(!!defaultTeam)
+  const [teamId, setTeamId] = useState<string>(defaultTeam || '')
+  const [teams, setTeams] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch('/api/teams')
+      .then(res => res.json())
+      .then(data => {
+        if (data.teams) setTeams(data.teams)
+      })
+  }, [])
 
   const VALID_TAGS = [
     '2-sat',
@@ -95,7 +111,9 @@ export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: 
           title,
           level: Number(level),
           duration_min: Number(duration),
-          tag_filter: tags
+          tag_filter: tags,
+          is_team_mode: isTeamMode,
+          team_id: isTeamMode ? teamId : undefined
         })
       })
       const data = await res.json()
@@ -151,6 +169,48 @@ export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: 
                     required
                     className="h-11 bg-transparent border-border rounded-sm focus:border-foreground focus:ring-0 text-base"
                   />
+                </div>
+
+                {/* Team Mode Toggle */}
+                <div className="space-y-4 p-5 rounded-md border border-border bg-neutral-50/50 dark:bg-neutral-900/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <Users className="w-4 h-4 text-blue-500" /> Team Contest Mode
+                      </Label>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Host a contest for your team. All team members will be notified and auto-enrolled.
+                      </p>
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant={isTeamMode ? "default" : "outline"}
+                      onClick={() => setIsTeamMode(!isTeamMode)}
+                      className={isTeamMode ? "bg-blue-600 text-white hover:bg-blue-700" : ""}
+                    >
+                      {isTeamMode ? "Enabled" : "Enable"}
+                    </Button>
+                  </div>
+                  
+                  {isTeamMode && (
+                    <div className="pt-4 border-t border-border mt-2 space-y-3 animate-in slide-in-from-top-2">
+                      <Label className="text-sm font-medium">Select Team <span className="text-red-400">*</span></Label>
+                      <Select value={teamId} onValueChange={(val: string | null) => setTeamId(val || '')} required={isTeamMode}>
+                        <SelectTrigger className="w-full bg-background">
+                          <SelectValue placeholder="Choose a team..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teams.length === 0 && <SelectItem value="none" disabled>No teams found</SelectItem>}
+                          {teams.map(t => (
+                            <SelectItem key={t.id} value={t.id}>{t.name} ({t._count?.members || 0} members)</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {teams.length === 0 && (
+                        <p className="text-xs text-orange-400">You need to create or join a team first from the Teams page.</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Difficulty Section */}

@@ -158,7 +158,14 @@ export default function LiveContest({ contest, currentUserId, onSyncSuccess }: {
           const letter = String.fromCharCode(65 + idx)
           const cfUrl = `https://codeforces.com/problemset/problem/${cp.problem.cf_contest_id}/${cp.problem.cf_index}`
           
-          const mySub = contest.submissions?.find((s: any) => s.user_id === currentUserId && s.problem_slot === cp.slot)
+          let mySub
+          if (contest.is_team_mode) {
+            const teamSubs = contest.submissions?.filter((s: any) => s.problem_slot === cp.slot)
+            mySub = teamSubs?.find((s: any) => s.verdict === 'AC') || teamSubs?.[teamSubs.length - 1]
+          } else {
+            mySub = contest.submissions?.find((s: any) => s.user_id === currentUserId && s.problem_slot === cp.slot)
+          }
+          
           const isSolved = mySub?.verdict === 'AC'
           const isAttempted = mySub && mySub.verdict !== 'AC'
 

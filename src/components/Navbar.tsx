@@ -15,13 +15,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { NotificationBell } from '@/components/NotificationBell'
 
 export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean }) {
   const pathname = usePathname()
   const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id)
+    })
+  }, [])
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -55,6 +63,18 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
         Leaderboard
         {pathname === '/leaderboard' && !mobile && <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-foreground" />}
       </Link>
+      <Link
+        href="/teams"
+        onClick={() => setOpen(false)}
+        className={cn(
+          "text-sm transition-colors relative",
+          pathname === '/teams' ? "text-foreground font-medium" : "text-neutral-500 hover:text-foreground",
+          mobile && "block py-2 text-base"
+        )}
+      >
+        Teams
+        {pathname === '/teams' && !mobile && <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-foreground" />}
+      </Link>
     </>
   )
 
@@ -72,22 +92,23 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
         </div>
 
         <div className="flex items-center gap-1">
+          {userId && <NotificationBell userId={userId} />}
           <ThemeToggle />
 
           {isAdminUser && (
             <Link href="/admin" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), "hidden sm:flex text-neutral-500 hover:text-foreground")} title="Admin Dashboard">
-              <Shield className="h-4 w-4" />
+              <Shield className="h-5 w-5" />
               <span className="sr-only">Admin</span>
             </Link>
           )}
 
           <Link href="/profile" className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), "hidden sm:flex text-neutral-500 hover:text-foreground")}>
-            <User className="h-4 w-4" />
+            <User className="h-5 w-5" />
             <span className="sr-only">Profile</span>
           </Link>
 
           <Button variant="ghost" size="icon" onClick={handleLogout} className="hidden sm:flex text-neutral-500 hover:text-foreground" title="Log out" disabled={loggingOut}>
-            {loggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+            {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
           </Button>
 
           <Sheet open={open} onOpenChange={setOpen}>
@@ -109,7 +130,7 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-2 text-base text-neutral-500 hover:text-foreground transition-colors"
                   >
-                    <Shield className="h-4 w-4" /> Admin
+                    <Shield className="h-5 w-5" /> Admin
                   </Link>
                 )}
                 <Link
@@ -117,14 +138,14 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-2 text-base text-neutral-500 hover:text-foreground transition-colors"
                 >
-                  <User className="h-4 w-4" /> Profile
+                  <User className="h-5 w-5" /> Profile
                 </Link>
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
                   className="flex items-center gap-2 text-base text-neutral-500 hover:text-foreground transition-colors text-left disabled:opacity-50"
                 >
-                  {loggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />} Log out
+                  {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />} Log out
                 </button>
               </div>
             </SheetContent>

@@ -31,8 +31,13 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     const hasTagFilter = contest.tag_filter.length > 0
 
     const sortedParticipants = [...contest.participants].sort((a, b) => {
-      if (a.total_score !== b.total_score) return b.total_score - a.total_score
-      return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
+      if (contest.is_team_mode) {
+        if (a.problems_solved !== b.problems_solved) return b.problems_solved - a.problems_solved
+        return a.penalty_time - b.penalty_time
+      } else {
+        if (a.total_score !== b.total_score) return b.total_score - a.total_score
+        return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
+      }
     })
 
     await db.$transaction(async (tx: any) => {
@@ -40,15 +45,18 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         const p = sortedParticipants[i]
         const rank = i + 1
 
-        const userSubs = contest.submissions.filter((s: any) => s.user_id === p.user_id)
+        const userSubs = contest.submissions.filter((s: any) => 
+          contest.is_team_mode ? true : s.user_id === p.user_id
+        )
         
         const problemResults = contest.problems.map((cp: any) => {
-          const sub = userSubs.find((s: any) => s.problem_slot === cp.slot)
-          const solved = sub?.verdict === 'AC'
+          const subs = userSubs.filter((s: any) => s.problem_slot === cp.slot)
+          const firstAC = subs.find((s: any) => s.verdict === 'AC')
+          const solved = !!firstAC
           return {
             rating: cp.problem.rating,
             solved,
-            solveTimeMin: solved ? Math.floor(sub!.elapsed_sec / 60) : null
+            solveTimeMin: solved ? Math.floor(firstAC!.elapsed_sec / 60) : null
           }
         })
 

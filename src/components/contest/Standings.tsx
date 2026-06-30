@@ -1,16 +1,21 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Activity } from 'lucide-react'
 
-export default function Standings({ participants }: { participants: any[] }) {
+export default function Standings({ participants, isTeamMode = false }: { participants: any[], isTeamMode?: boolean }) {
   const sorted = [...participants].sort((a, b) => {
-    if (a.total_score !== b.total_score) return b.total_score - a.total_score
-    return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
+    if (isTeamMode) {
+      if (a.problems_solved !== b.problems_solved) return b.problems_solved - a.problems_solved
+      return a.penalty_time - b.penalty_time
+    } else {
+      if (a.total_score !== b.total_score) return b.total_score - a.total_score
+      return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
+    }
   })
 
   return (
     <div className="space-y-3 sticky top-20">
       <h3 className="text-xs font-medium uppercase tracking-wider text-neutral-500 pb-2 border-b border-border">
-        Live Standings
+        {isTeamMode ? 'Team Standings (Individual view)' : 'Live Standings'}
       </h3>
       <div className="rounded-md border border-border overflow-hidden bg-card">
         <Table>
@@ -18,13 +23,15 @@ export default function Standings({ participants }: { participants: any[] }) {
             <TableRow className="bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-900">
               <TableHead className="w-10 text-center text-[10px] uppercase tracking-wider text-neutral-500 font-medium">#</TableHead>
               <TableHead className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Handle</TableHead>
-              <TableHead className="text-right pr-4 text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Score</TableHead>
+              <TableHead className="text-right pr-4 text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
+                {isTeamMode ? 'Solved / Penalty' : 'Score'}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.map((p, idx) => (
               <TableRow key={p.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
-                <TableCell className="text-center font-mono text-xs font-medium text-neutral-500">{idx + 1}</TableCell>
+                <TableCell className="text-center font-mono text-xs font-medium text-neutral-500">{isTeamMode ? 1 : idx + 1}</TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium text-sm text-foreground flex items-center gap-1.5">
@@ -35,9 +42,18 @@ export default function Standings({ participants }: { participants: any[] }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right pr-4">
-                  <span className={`font-mono text-sm font-bold ${p.total_score > 0 ? 'text-emerald-500' : 'text-neutral-500'}`}>
-                    {p.total_score}
-                  </span>
+                  {isTeamMode ? (
+                    <div className="flex flex-col items-end">
+                      <span className={`font-mono text-sm font-bold ${p.problems_solved > 0 ? 'text-emerald-500' : 'text-neutral-500'}`}>
+                        {p.problems_solved}
+                      </span>
+                      <span className="text-[10px] text-neutral-400 font-mono">{Math.floor(p.penalty_time / 60)}m</span>
+                    </div>
+                  ) : (
+                    <span className={`font-mono text-sm font-bold ${p.total_score > 0 ? 'text-emerald-500' : 'text-neutral-500'}`}>
+                      {p.total_score}
+                    </span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

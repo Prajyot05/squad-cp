@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
-import { computeScore } from '@/lib/scoring'
+import { computeScore, computeTeamResults } from '@/lib/scoring'
 
 export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
@@ -30,9 +30,11 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     if (!submissions || !Array.isArray(submissions)) {
       return NextResponse.json({ error: 'Invalid submissions payload' }, { status: 400 })
     }
-    let totalScore = 0
-    let problemsSolved = 0
-    let lastSolveSec = 0
+    
+    let indTotalScore = 0
+    let indProblemsSolved = 0
+    let indLastSolveSec = 0
+    let indWrongAttempts = 0
     
     const contestStartTime = Math.floor(new Date(contest.started_at).getTime() / 1000)
     const contestEndTime = contestStartTime + contest.duration_min * 60
@@ -67,11 +69,12 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       }
 
       const score = computeScore(cp.max_points, solveTimeMin, wrongAttempts)
-      totalScore += score
+      indTotalScore += score
+      indWrongAttempts += wrongAttempts
 
       if (solved) {
-        problemsSolved++
-        lastSolveSec = Math.max(lastSolveSec, solveTimeSec)
+        indProblemsSolved++
+        indLastSolveSec = Math.max(indLastSolveSec, solveTimeSec)
       }
 
       // Upsert into submissions table
@@ -96,16 +99,37 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       }
     }
 
-    await db.contestParticipant.update({
-      where: { contest_id_user_id: { contest_id: contest.id, user_id: user.id } },
-      data: {
-        total_score: totalScore,
-        problems_solved: problemsSolved,
-        last_solve_sec: lastSolveSec > 0 ? lastSolveSec : null
-      }
-    })
-
-    return NextResponse.json({ success: true, totalScore, problemsSolved })
+    if (contest.is_team_mode) {
+      // Re-aggregate for the whole team
+      const allSubs = await db.submission.findMany({ where: { contest_id: contest.id } })
+      const teamResults = computeTeamResults(
+        allSubs.map(s => ({ user_id: s.user_id, problem_slot: s.problem_slot, verdict: s.verdict, elapsed_sec: s.elapsed_sec })),
+        contest.problems.map(cp => ({ slot: cp.slot, max_points: cp.max_points }))
+      )
+      
+      await db.contestParticipant.updateMany({
+        where: { contest_id: contest.id },
+        data: {
+          total_score: teamResults.totalScore,
+          problems_solved: teamResults.problemsSolved,
+          penalty_time: teamResults.totalPenaltyTime
+        }
+      })
+      
+      return NextResponse.json({ success: true, totalScore: teamResults.totalScore, problemsSolved: teamResults.problemsSolved })
+    } else {
+      await db.contestParticipant.update({
+        where: { contest_id_user_id: { contest_id: contest.id, user_id: user.id } },
+        data: {
+          total_score: indTotalScore,
+          problems_solved: indProblemsSolved,
+          last_solve_sec: indLastSolveSec > 0 ? indLastSolveSec : null,
+          wrong_attempts: indWrongAttempts
+        }
+      })
+      
+      return NextResponse.json({ success: true, totalScore: indTotalScore, problemsSolved: indProblemsSolved })
+    }
   } catch (err: any) {
     console.error('Contest sync error:', err)
     return NextResponse.json({ error: 'An unexpected error occurred while syncing data.' }, { status: 500 })
