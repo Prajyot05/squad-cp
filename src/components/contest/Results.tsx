@@ -8,14 +8,12 @@ import { cn } from '@/lib/utils'
 
 export default function Results({ contest, standings, currentUserId }: { contest: any, standings: any[], currentUserId: string }) {
   const sorted = [...standings].sort((a, b) => {
-    if (contest.is_team_mode) {
-      if (a.problems_solved !== b.problems_solved) return b.problems_solved - a.problems_solved
-      return a.penalty_time - b.penalty_time
-    } else {
-      return (a.final_rank || 999) - (b.final_rank || 999)
-    }
+    if (a.total_score !== b.total_score) return b.total_score - a.total_score
+    return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
   })
   const winner = sorted[0]
+  
+  const displayItems = contest?.is_team_mode && sorted.length > 0 ? [sorted[0]] : sorted
 
   return (
     <div className="space-y-5">
@@ -27,8 +25,16 @@ export default function Results({ contest, standings, currentUserId }: { contest
           </div>
           <div>
             <p className="text-[10px] font-medium uppercase tracking-wider text-blue-500 mb-0.5">Team Performance</p>
-            <p className="text-2xl font-bold text-foreground">{winner?.total_score || 0} pts</p>
-            <p className="text-xs text-neutral-500 mt-0.5 font-mono">{winner?.problems_solved || 0} problems solved · {Math.floor((winner?.penalty_time || 0) / 60)}m penalty</p>
+            <p className="text-2xl font-bold text-foreground">{contest.team?.name || 'Your Team'}</p>
+            <p className="text-sm font-medium text-foreground mt-1 mb-2">{winner?.total_score || 0} pts</p>
+            <p className="text-xs text-neutral-500 mt-0.5 font-mono">
+              {winner?.problems_solved || 0} problems solved
+              {(winner?.wrong_attempts || 0) > 0 && (
+                <span className="text-red-500/80 ml-2" title="Points lost due to wrong submissions (-50 per wrong attempt)">
+                  (-{winner.wrong_attempts * 50} pts penalty)
+                </span>
+              )}
+            </p>
           </div>
         </div>
       ) : winner && (
@@ -55,16 +61,16 @@ export default function Results({ contest, standings, currentUserId }: { contest
                 <TableHead className="w-14 text-center text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
                   {contest.is_team_mode ? '#' : 'Rank'}
                 </TableHead>
-                <TableHead className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium">User</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium">{contest?.is_team_mode ? 'Team' : 'User'}</TableHead>
                 <TableHead className="text-right text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
-                  {contest.is_team_mode ? 'Solved / Penalty' : 'Score'}
+                  Score
                 </TableHead>
                 <TableHead className="text-right text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Skill</TableHead>
                 <TableHead className="text-right pr-4 text-[10px] uppercase tracking-wider text-neutral-500 font-medium">Level</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sorted.map((p) => {
+              {displayItems.map((p) => {
                 const skillDelta = p.skill_after - p.skill_before
                 const levelDelta = p.level_after - p.level_before
                 const isMe = p.user_id === currentUserId
@@ -77,15 +83,19 @@ export default function Results({ contest, standings, currentUserId }: { contest
                       )}
                     </TableCell>
                     <TableCell className="font-medium text-sm text-foreground">
-                      {p.user.username} {isMe && <Badge variant="outline" className="ml-2 text-[9px] font-mono uppercase bg-neutral-200 dark:bg-neutral-800 text-foreground border-border">YOU</Badge>}
+                      {contest?.is_team_mode ? contest.team?.name : p.user.username} {isMe && !contest?.is_team_mode && <Badge variant="outline" className="ml-2 text-[9px] font-mono uppercase bg-neutral-200 dark:bg-neutral-800 text-foreground border-border">YOU</Badge>}
                     </TableCell>
                     <TableCell className="text-right font-mono font-bold text-sm">
-                      {contest.is_team_mode ? (
-                        <div className="flex flex-col items-end">
-                          <span className={p.problems_solved > 0 ? 'text-emerald-500' : 'text-neutral-500'}>{p.problems_solved}</span>
-                          <span className="text-[10px] text-neutral-400 font-normal">{Math.floor(p.penalty_time / 60)}m</span>
-                        </div>
-                      ) : p.total_score}
+                      <div className="flex flex-col items-end">
+                        <span className={p.total_score > 0 ? 'text-emerald-500' : 'text-neutral-500'}>
+                          {p.total_score}
+                        </span>
+                        {(p.wrong_attempts || 0) > 0 && (
+                          <span className="text-[10px] text-red-500/80 font-mono mt-0.5" title="Points lost due to wrong submissions (-50 per wrong attempt)">
+                            (-{p.wrong_attempts * 50} pts)
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="font-mono text-sm">{p.skill_after}</span>

@@ -197,7 +197,9 @@ export default function CreateContestForm({ suggestedLevel }: { suggestedLevel: 
                       <Label className="text-sm font-medium">Select Team <span className="text-red-400">*</span></Label>
                       <Select value={teamId} onValueChange={(val: string | null) => setTeamId(val || '')} required={isTeamMode}>
                         <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder="Choose a team..." />
+                          <SelectValue placeholder="Choose a team...">
+                            {teamId ? (teams.find(t => t.id === teamId)?.name || 'Loading team...') : undefined}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {teams.length === 0 && <SelectItem value="none" disabled>No teams found</SelectItem>}

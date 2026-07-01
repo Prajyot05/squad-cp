@@ -16,6 +16,7 @@ export default async function ContestPage(props: { params: Promise<{ id: string 
     where: { id: contestId },
     include: {
       creator: { select: { username: true } },
+      team: { select: { name: true } },
       problems: {
         include: { problem: true },
         orderBy: { slot: 'asc' }

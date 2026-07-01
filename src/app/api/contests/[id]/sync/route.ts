@@ -112,7 +112,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         data: {
           total_score: teamResults.totalScore,
           problems_solved: teamResults.problemsSolved,
-          penalty_time: teamResults.totalPenaltyTime
+          last_solve_sec: teamResults.teamLastSolveSec > 0 ? teamResults.teamLastSolveSec : null,
+          wrong_attempts: teamResults.teamWrongAttempts
         }
       })
       

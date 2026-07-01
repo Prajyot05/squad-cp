@@ -32,8 +32,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     const sortedParticipants = [...contest.participants].sort((a, b) => {
       if (contest.is_team_mode) {
-        if (a.problems_solved !== b.problems_solved) return b.problems_solved - a.problems_solved
-        return a.penalty_time - b.penalty_time
+        if (a.total_score !== b.total_score) return b.total_score - a.total_score
+        return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)
       } else {
         if (a.total_score !== b.total_score) return b.total_score - a.total_score
         return (a.last_solve_sec || 0) - (b.last_solve_sec || 0)

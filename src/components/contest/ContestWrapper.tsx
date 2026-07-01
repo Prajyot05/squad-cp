@@ -51,7 +51,7 @@ export default function ContestWrapper({ initialContest, currentUserId }: { init
         {contest.status === 'finished' && <Results contest={contest} standings={standings} currentUserId={currentUserId} />}
       </div>
       <div className="lg:col-span-1 lg:border-l lg:border-border lg:pl-6">
-        <Standings participants={standings} isTeamMode={contest.is_team_mode} />
+        <Standings participants={standings} contest={contest} />
       </div>
     </div>
   )

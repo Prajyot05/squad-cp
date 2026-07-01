@@ -29,7 +29,8 @@ export function computeTeamResults(
 ) {
   let totalScore = 0;
   let problemsSolved = 0;
-  let totalPenaltyTime = 0;
+  let teamWrongAttempts = 0;
+  let teamLastSolveSec = 0;
   
   const problemDetails = new Map<number, { solved: boolean, firstACSec: number | null, wrongAttempts: number }>();
   
@@ -52,13 +53,14 @@ export function computeTeamResults(
     }
     
     problemDetails.set(cp.slot, { solved, firstACSec, wrongAttempts });
+    teamWrongAttempts += wrongAttempts;
     
     if (solved && firstACSec !== null) {
       problemsSolved++;
-      totalPenaltyTime += computeICPCPenalty(firstACSec, wrongAttempts);
+      teamLastSolveSec = Math.max(teamLastSolveSec, firstACSec);
       totalScore += computeScore(cp.max_points, Math.floor(firstACSec / 60), wrongAttempts);
     }
   }
   
-  return { problemsSolved, totalPenaltyTime, totalScore, problemDetails };
+  return { problemsSolved, teamWrongAttempts, teamLastSolveSec, totalScore, problemDetails };
 }
