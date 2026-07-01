@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from login
   if (user && isAuthRoute && !request.nextUrl.pathname.startsWith('/auth/callback')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 

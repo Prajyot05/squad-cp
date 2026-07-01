@@ -201,7 +201,7 @@ export default function Results({ contest, standings, currentUserId }: { contest
       </div>
       
       <div className="pt-2 flex justify-center">
-        <Link href="/" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), "gap-2 text-neutral-500 hover:text-foreground text-xs")}>
+        <Link href="/dashboard" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), "gap-2 text-neutral-500 hover:text-foreground text-xs")}>
           <ChevronLeft className="w-3.5 h-3.5" /> Back to Dashboard
         </Link>
       </div>

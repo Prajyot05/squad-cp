@@ -40,16 +40,16 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
   const NavLinks = ({ mobile = false }) => (
     <>
       <Link
-        href="/"
+        href="/dashboard"
         onClick={() => setOpen(false)}
         className={cn(
           "text-sm transition-colors relative",
-          pathname === '/' ? "text-foreground font-medium" : "text-neutral-500 hover:text-foreground",
+          pathname === '/dashboard' ? "text-foreground font-medium" : "text-neutral-500 hover:text-foreground",
           mobile && "block py-2 text-base"
         )}
       >
         Dashboard
-        {pathname === '/' && !mobile && <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-foreground" />}
+        {pathname === '/dashboard' && !mobile && <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-foreground" />}
       </Link>
       <Link
         href="/leaderboard"
@@ -82,7 +82,7 @@ export default function Navbar({ isAdminUser = false }: { isAdminUser?: boolean 
     <nav className="border-b border-border bg-background sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <Image src="/logo.png" alt="SquadCP Logo" width={400} height={400} className="h-7 w-auto rounded-sm" priority />
             <span className="font-bold text-lg tracking-tight text-foreground">SquadCP</span>
           </Link>
